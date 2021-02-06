@@ -14,7 +14,6 @@ namespace Carlos.Network.Tests
       public void GetPortStatusTest()
       {
          PortScanner scanner = new PortScanner();
-         scanner.ClearOpenedPortsList();
          scanner.Scan();
          for (int i = 0; i < scanner.OpenedPorts.Count; i++)
          {
