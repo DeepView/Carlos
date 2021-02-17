@@ -3,7 +3,10 @@ using System.Net;
 using Carlos.Extends;
 using System.Net.Sockets;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
+
 namespace Carlos.Network
 {
    /// <summary>
@@ -20,7 +23,7 @@ namespace Carlos.Network
       {
          IPAddress.TryParse("127.0.0.1", out IPAddress ipAddress);
          if (ipAddress != null) Host = ipAddress;
-         else throw new NullReferenceException("IP address string's format is not true.");
+         else throw new NullReferenceException("IP address string's format is not true or not null.");
          ScanRange = new Int32Range(0, 65535);
          OpenedPorts = new List<int>();
       }
@@ -33,7 +36,7 @@ namespace Carlos.Network
       {
          IPAddress.TryParse(ipAddressString, out IPAddress ipAddress);
          if (ipAddress != null) Host = ipAddress;
-         else throw new NullReferenceException("IP address string's format is not true.");
+         else throw new NullReferenceException("IP address string's format is not true or not null.");
          ScanRange = new Int32Range(0, 65535);
          OpenedPorts = new List<int>();
       }
@@ -47,7 +50,7 @@ namespace Carlos.Network
       {
          IPAddress.TryParse(ipAddressString, out IPAddress ipAddress);
          if (ipAddress != null) Host = ipAddress;
-         else throw new NullReferenceException("IP address string's format is not true.");
+         else throw new NullReferenceException("IP address string's format is not true or not null.");
          ScanRange = scanRange;
          OpenedPorts = new List<int>();
       }
@@ -82,7 +85,11 @@ namespace Carlos.Network
       {
          Random rand = new Random((int)DateTime.Now.Ticks);
          ClearOpenedPortsList();
-         for (int port = ScanRange.Lower; port <= ScanRange.Upper; port++)
+         ParallelOptions parallelOptions = new ParallelOptions()
+         {
+            MaxDegreeOfParallelism = ScanRange.GetDisparityAbs() >= 1024 ? -1 : 2
+         };
+         Parallel.For(ScanRange.Lower, ScanRange.Upper + 1, parallelOptions, (port) =>
          {
             Socket scanSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
             do
@@ -99,8 +106,8 @@ namespace Carlos.Network
                EndPoint rep = new IPEndPoint(Host, port);
                scanSocket.BeginConnect(rep, ScanCallback, new ArrayList() { scanSocket, port });
             }
-            catch { continue; }
-         }
+            catch { }
+         });
       }
       /// <summary>
       /// 检测指定计算机的指定端口是否被打开或者启用，如果IP地址指定为空，则将把IP地址自动设置为本机环回地址，即127.0.0.1。

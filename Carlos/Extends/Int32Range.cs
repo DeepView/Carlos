@@ -67,6 +67,11 @@ namespace Carlos.Extends
          return include;
       }
       /// <summary>
+      /// 获取当前范围实例的上下限的极差绝对值。
+      /// </summary>
+      /// <returns>该操作将会返回一个以Int32数据类型为格式的上下限极差绝对值。</returns>
+      public int GetDisparityAbs() => Math.Abs(Upper - Lower);
+      /// <summary>
       /// 判断当前结构与另一个Int32Range结构是否相同。
       /// </summary>
       /// <param name="other">另一个Int32Range结构。</param>

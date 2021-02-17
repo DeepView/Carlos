@@ -14,4 +14,8 @@
     <DefineConstants>TRACE;/define WIN32</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>
