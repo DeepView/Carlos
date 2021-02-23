@@ -5,8 +5,6 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
-
 namespace Carlos.Network
 {
    /// <summary>

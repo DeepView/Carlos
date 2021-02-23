@@ -12,10 +12,11 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;/define WIN32</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Data\" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
   </ItemGroup>
 
 </Project>
