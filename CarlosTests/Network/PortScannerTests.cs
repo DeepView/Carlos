@@ -13,7 +13,7 @@ namespace Carlos.Network.Tests
       [TestMethod("Get All Ports's Status Test")]
       public void GetPortStatusTest()
       {
-         PortScanner scanner = new PortScanner("127.0.0.1", new Extends.Int32Range(80, 1024));
+         PortScanner scanner = new PortScanner("127.0.0.1", new Extends.Int32Range(0, 65535));
          scanner.Scan();
          for (int i = 0; i < scanner.OpenedPorts.Count; i++)
          {
@@ -25,7 +25,7 @@ namespace Carlos.Network.Tests
       [TestMethod("Single Port Scan's Test")]
       public void GetPortIsOpenedTest()
       {
-         bool isOpened=PortScanner.GetPortIsOpened(null, 80);
+         bool isOpened = PortScanner.GetPortIsOpened(null, 80);
          Console.WriteLine(isOpened);
       }
    }

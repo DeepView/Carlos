@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.0.2102.1</Version>
+    <Version>1.0.2102.3</Version>
     <Authors>Li Huaxiang</Authors>
     <Copyright>© 2021 Li Huaxiang and contributors</Copyright>
     <PackageId>Carlos Saber</PackageId>

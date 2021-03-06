@@ -29,9 +29,9 @@ namespace Carlos.Extends
       /// <returns>该操作会返回一个由toType决定的进制类型的数据，且这个数据由string数据类型封装。</returns>
       private static string ConvertFromBin(string input, byte toType) => toType switch
       {
-         8 => Convert.ToString(Convert.ToInt32(input, 2), 8),
-         10 => Convert.ToInt32(input, 2).ToString(),
-         16 => Convert.ToString(Convert.ToInt32(input, 2), 16),
+         8 => Convert.ToString(Convert.ToInt64(input, 2), 8),
+         10 => Convert.ToInt64(input, 2).ToString(),
+         16 => Convert.ToString(Convert.ToInt64(input, 2), 16),
          _ => input,
       };
       /// <summary>
@@ -42,9 +42,9 @@ namespace Carlos.Extends
       /// <returns>该操作会返回一个由toType决定的进制类型的数据，且这个数据由string数据类型封装。</returns>
       private static string ConvertFromOct(string input, byte toType) => toType switch
       {
-         2 => Convert.ToString(Convert.ToInt32(input, 8), 2),
-         10 => Convert.ToInt32(input, 8).ToString(),
-         16 => Convert.ToString(Convert.ToInt32(input, 8), 16),
+         2 => Convert.ToString(Convert.ToInt64(input, 8), 2),
+         10 => Convert.ToInt64(input, 8).ToString(),
+         16 => Convert.ToString(Convert.ToInt64(input, 8), 16),
          _ => input,
       };
       /// <summary>
@@ -55,9 +55,9 @@ namespace Carlos.Extends
       /// <returns>该操作会返回一个由toType决定的进制类型的数据，且这个数据由string数据类型封装。</returns>
       private static string ConvertFromDec(string input, int toType) => toType switch
       {
-         2 => Convert.ToString(Convert.ToInt32(input), 2),
-         8 => Convert.ToString(Convert.ToInt32(input), 8),
-         16 => Convert.ToString(Convert.ToInt32(input), 16),
+         2 => Convert.ToString(Convert.ToInt64(input), 2),
+         8 => Convert.ToString(Convert.ToInt64(input), 8),
+         16 => Convert.ToString(Convert.ToInt64(input), 16),
          _ => input,
       };
       /// <summary>
@@ -68,9 +68,9 @@ namespace Carlos.Extends
       /// <returns>该操作会返回一个由toType决定的进制类型的数据，且这个数据由string数据类型封装。</returns>
       private static string ConvertFromHex(string input, int toType) => toType switch
       {
-         2 => Convert.ToString(Convert.ToInt32(input, 16), 2),
-         8 => Convert.ToString(Convert.ToInt32(input, 16), 8),
-         10 => Convert.ToInt32(input, 16).ToString(),
+         2 => Convert.ToString(Convert.ToInt64(input, 16), 2),
+         8 => Convert.ToString(Convert.ToInt64(input, 16), 8),
+         10 => Convert.ToInt64(input, 16).ToString(),
          _ => input,
       };
    }

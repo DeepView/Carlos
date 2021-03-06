@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 namespace Carlos.Extends
 {
    /// <summary>
@@ -75,5 +76,72 @@ namespace Carlos.Extends
          }
          return bRet;
       }
+      /// <summary>
+      /// 反转字符串中每一个字符的顺序。
+      /// </summary>
+      /// <param name="source">需要被反转顺序的字符串</param>
+      /// <returns>该操作将会返回一个全新的String实例，这个实例包含了source参数指定字符串的反转字符串。</returns>
+      public static string Reversal(string source)
+      {
+         char[] reversal = source.Reverse().ToArray();
+         return new string(reversal);
+      }
+      /// <summary>
+      /// 将指定字符串转换为对应的字节码列表。
+      /// </summary>
+      /// <param name="source">需要被转换的字符串。</param>
+      /// <returns>该操作将会返回一个泛型列表，这个列表存储的是一系列Int32数据，用于表示一些字节码。</returns>
+      public static List<int> ToCode(string source)
+      {
+         char[] src = source.ToArray();
+         List<int> result = new List<int>();
+         for (int i = 0; i < src.Length; i++)
+         {
+            int sglCode = Convert.ToInt32(src[i]);
+            result.Add(sglCode);
+         }
+         return result;
+      }
+      /// <summary>
+      /// 将指定字符串转换为对应的字节码数据。
+      /// </summary>
+      /// <param name="source">需要被转换的字符串。</param>
+      /// <returns>该操作将会返回一个int指针类型，这个指针类型存储的是一系列Int32数据，用于表示一些字节码。</returns>
+      [Obsolete("Need perfect.")]
+      public unsafe static int* ToAsciiCode(string source)
+      {
+         char[] src = source.ToArray();
+         fixed (int* result = stackalloc int[src.Length])
+         {
+            for (int i = 0; i < src.Length; i++)
+            {
+               int sglCode = Convert.ToInt32(src[i]);
+               result[i] = sglCode;
+            }
+            return result;
+         }
+      }
+      /// <summary>
+      /// 一个简化版的String.Split方法，基于数组中的字符将字符串拆分为多个子字符串。
+      /// </summary>
+      /// <param name="source">需要被拆分的字符串。</param>
+      /// <param name="separator">拆分字符串的字符依据。</param>
+      /// <returns>该操作将会返回一个字符串数组，这个数组包含了所有拆分出来的字符串。</returns>
+      public static string[] Split(string source, char separator) => Split(source, separator, StringSplitOptions.None);
+      /// <summary>
+      /// 一个简化版的String.Split方法，基于数组中的字符将字符串拆分为多个子字符串，并指定拆分方式。
+      /// </summary>
+      /// <param name="source">需要被拆分的字符串。</param>
+      /// <param name="separator">拆分字符串的字符依据。</param>
+      /// <param name="options">拆分字符串的方式。</param>
+      /// <returns>该操作将会返回一个字符串数组，这个数组包含了所有拆分出来的字符串。</returns>
+      public static string[] Split(string source, char separator, StringSplitOptions options) => source.Split(new char[] { separator }, options);
+      /// <summary>
+      /// 将字节码数据转换为指定编码的字符串。
+      /// </summary>
+      /// <param name="bytes">需要被转换的字节码数据。</param>
+      /// <param name="encoding">指定的编码格式。</param>
+      /// <returns>该操作将会返回转换成功之后的数据。</returns>
+      public static string ConvertEncoding(byte[] bytes, Encoding encoding) => encoding.GetString(bytes);
    }
 }
