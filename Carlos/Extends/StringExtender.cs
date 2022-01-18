@@ -25,6 +25,7 @@ namespace Carlos.Extends
       /// //Console Output Result:
       /// //Hello
       /// </code>
+      /// 当然，<c>StringExtender.Right(String, Int32)</c>的使用方法也一样。
       /// </example>
       public static string Left(string source, int length) => source.Substring(NUM_ZERO, length);
       /// <summary>
@@ -95,32 +96,32 @@ namespace Carlos.Extends
       {
          char[] src = source.ToArray();
          List<int> result = new List<int>();
-         for (int i = 0; i < src.Length; i++)
+         foreach (char item in src)
          {
-            int sglCode = Convert.ToInt32(src[i]);
+            int sglCode = Convert.ToInt32(item);
             result.Add(sglCode);
          }
          return result;
       }
-      /// <summary>
-      /// 将指定字符串转换为对应的字节码数据。
-      /// </summary>
-      /// <param name="source">需要被转换的字符串。</param>
-      /// <returns>该操作将会返回一个int指针类型，这个指针类型存储的是一系列Int32数据，用于表示一些字节码。</returns>
-      [Obsolete("Need perfect.")]
-      public unsafe static int* ToAsciiCode(string source)
-      {
-         char[] src = source.ToArray();
-         fixed (int* result = stackalloc int[src.Length])
-         {
-            for (int i = 0; i < src.Length; i++)
-            {
-               int sglCode = Convert.ToInt32(src[i]);
-               result[i] = sglCode;
-            }
-            return result;
-         }
-      }
+      ///// <summary>
+      ///// 将指定字符串转换为对应的字节码数据。
+      ///// </summary>
+      ///// <param name="source">需要被转换的字符串。</param>
+      ///// <returns>该操作将会返回一个int指针类型，这个指针类型存储的是一系列Int32数据，用于表示一些字节码。</returns>
+      //[Obsolete("Need perfect.")]
+      //public unsafe static int* ToAsciiCode(string source)
+      //{
+      //   char[] src = source.ToArray();
+      //   fixed (int* result = stackalloc int[src.Length])
+      //   {
+      //      for (int i = 0; i < src.Length; i++)
+      //      {
+      //         int sglCode = Convert.ToInt32(src[i]);
+      //         result[i] = sglCode;
+      //      }
+      //      return result;
+      //   }
+      //}
       /// <summary>
       /// 一个简化版的String.Split方法，基于数组中的字符将字符串拆分为多个子字符串。
       /// </summary>

@@ -67,6 +67,11 @@ namespace Carlos.Extends
          return include;
       }
       /// <summary>
+      /// 指示当前的范围结构的上下限是否符合数学规范，即上限是否大于等于下限。
+      /// </summary>
+      /// <returns>如果当前实例的上下限符合数学规范，则返回true，否则返回false。</returns>
+      public bool IsCorrect() => Lower < Upper;
+      /// <summary>
       /// 获取当前范围实例的上下限的极差绝对值。
       /// </summary>
       /// <returns>该操作将会返回一个以Int32数据类型为格式的上下限极差绝对值。</returns>

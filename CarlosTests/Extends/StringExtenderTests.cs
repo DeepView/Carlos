@@ -24,14 +24,6 @@ namespace Carlos.Extends.Tests
       [TestMethod("Convert to ASCII Code Test")]
       public unsafe void ToCodeTest()
       {
-         //这个测试实例的测试源需要改善算法。
-         int* code = StringExtender.ToAsciiCode("12345");
-         for (int i = 0; i < 5; i++)
-         {
-            long addr = (long)&code[i];
-            Console.WriteLine($"Address_0x{BaseConverter.ConvertTo(addr.ToString(), 10, 16)}_Context -> {code[i]}");
-         }
-         Console.WriteLine();
          int[] ascii = StringExtender.ToCode("12345").ToArray();
          for (int i = 0; i < ascii.Length; i++)
          {
