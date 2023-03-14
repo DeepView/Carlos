@@ -210,14 +210,13 @@ namespace Carlos.Application
         /// <returns>该操作将会返回执行其详细决策之后所得到的返回结果。</returns>
         protected virtual object OpenNative(Uri nativeUrl)
         {
-            object invokeResult = null;
             string originalUrl = nativeUrl.OriginalString;
             int offset = originalUrl.Length - nativeUrl.Scheme.Length - (nativeUrl.Authority.Length + nativeUrl.PathAndQuery.Length);
             string className = originalUrl.Substring(nativeUrl.Scheme.Length + offset, nativeUrl.Host.Length);
             string protocolClassName = IsMustProtocol ? className + "Protocol" : className;
-            string methodName = nativeUrl.LocalPath.Substring(1);
-            string parametersString = nativeUrl.Query.Substring(1);
-            string[] psArray = parametersString.Split(new char[] { '&' });
+            string methodName = nativeUrl.LocalPath[1..];
+            string parametersString = nativeUrl.Query[1..];
+            string[] psArray = parametersString.Split('&');
             Dictionary<string, object> paramList = new Dictionary<string, object>();
             for (int i = 0; i < psArray.Length; i++)
             {
@@ -236,7 +235,7 @@ namespace Carlos.Application
             }
             BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
             MethodInfo mi = type.GetMethod(methodName, flags);
-            invokeResult = mi.Invoke(null, new object[] { paramList });
+            object invokeResult = mi.Invoke(null, new object[] { paramList });
             return invokeResult;
         }
         /// <summary>

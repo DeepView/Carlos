@@ -2,29 +2,29 @@
 using System.Diagnostics;
 namespace Carlos
 {
-   /// <summary>
-   /// 用于描述代码执行所需时间的时间戳返回结果的类，基于IDisposable接口实现，如果您在控制台应用程序或者应用程序调试过程中需要使用此类，可以考虑使用IDisposable接口模式进行访问。
-   /// </summary>
-   /// <example>
-   /// 该类的建议使用方法如下代码所示：
-   /// <code>
-   /// CodeExecutedTimespanResult result = new CodeExecutedTimespanResult("NeedExecutedCodes");
-   /// //This is your code...
-   /// result.StopMeasure();
-   /// Console.WriteLine("ExecutedTime = {0}", result.ExecuteTime);
-   /// Console.WriteLine("Timestamp = {0}", result.ExecutedTimestamp);
-   /// </code>
-   /// 如果您正在控制台应用程序使用这个类，则示例代码如下所示：
-   /// <code>
-   /// using (CodeExecutedTimespanResult result = new CodeExecutedTimespanResult("Debug"))
-   /// {
-   /// //This is your code...
-   /// }
-   /// </code>
-   /// 如果这段代码是在该类通过了DEBUG条件编译的情况下，那么上述代码会在控制台显示其运行时间，其具体实现请参考当前类的Dispose方法。
-   /// </example>
-   /// <remarks>虽然这个类的执行时间统计的精度可能略差于<c>Carlos.CodeHelper.ExecDuration(System.Action)</c>方法，但是误差不大，在性能不错的计算机平台上，其误差相较于其可以控制在1~10毫秒之内，不过该类更适用于调试应用程序或者代码片段的场景，如果需要在其他非调试场合下使用这个类，建议不要采用using模式。</remarks>
-   public class CodeExecutedTimespanResult : IDisposable
+    /// <summary>
+    /// 用于描述代码执行所需时间的时间戳返回结果的类，基于IDisposable接口实现，如果您在控制台应用程序或者应用程序调试过程中需要使用此类，可以考虑使用IDisposable接口模式进行访问。
+    /// </summary>
+    /// <example>
+    /// 该类的建议使用方法如下代码所示：
+    /// <code>
+    /// CodeExecutedTimespanResult result = new CodeExecutedTimespanResult("NeedExecutedCodes");
+    /// //This is your code...
+    /// result.StopMeasure();
+    /// Console.WriteLine("ExecutedTime = {0}", result.ExecuteTime);
+    /// Console.WriteLine("Timestamp = {0}", result.ExecutedTimespan);
+    /// </code>
+    /// 如果您正在控制台应用程序使用这个类，则示例代码如下所示：
+    /// <code>
+    /// using (CodeExecutedTimespanResult result = new CodeExecutedTimespanResult("Debug"))
+    /// {
+    /// //This is your code...
+    /// }
+    /// </code>
+    /// 如果这段代码是在该类通过了DEBUG条件编译的情况下，那么上述代码会在控制台显示其运行时间，其具体实现请参考当前类的Dispose方法。
+    /// </example>
+    /// <remarks>虽然这个类的执行时间统计的精度可能略差于<c>Carlos.CodeHelper.ExecDuration(System.Action)</c>方法，但是误差不大，在性能不错的计算机平台上，其误差相较于其可以控制在1~10毫秒之内，不过该类更适用于调试应用程序或者代码片段的场景，如果需要在其他非调试场合下使用这个类，建议不要采用using模式。</remarks>
+    public class CodeExecutedTimespanResult : IDisposable
    {
       /// <summary>
       /// 构造函数，创建一个默认的CodeExecutedTimestampResult实例。
