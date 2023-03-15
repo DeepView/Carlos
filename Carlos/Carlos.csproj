@@ -2,24 +2,27 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.0.2204.5</Version>
+    <Version></Version>
     <Authors>Li Huaxiang</Authors>
     <Copyright>© 2023 Li Huaxiang and contributors</Copyright>
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2204.5</AssemblyVersion>
-    <FileVersion>1.0.2204.5</FileVersion>
+    <AssemblyVersion>1.0.2303.8</AssemblyVersion>
+    <FileVersion>1.0.2303.8</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Description>Carlos Saber is a tool extension library for .NET, applicable to C #, VB and C++/CLI.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;/define WIN32,CONSOLE</DefineConstants>
+    <DefineConstants>TRACE,WIN32,CONSOLE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>True</Optimize>
+    <DefineConstants>$(DefineConstants)TRACE,WIN32,CONSOLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

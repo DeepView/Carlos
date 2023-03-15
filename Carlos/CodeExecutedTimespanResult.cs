@@ -25,70 +25,70 @@ namespace Carlos
     /// </example>
     /// <remarks>虽然这个类的执行时间统计的精度可能略差于<c>Carlos.CodeHelper.ExecDuration(System.Action)</c>方法，但是误差不大，在性能不错的计算机平台上，其误差相较于其可以控制在1~10毫秒之内，不过该类更适用于调试应用程序或者代码片段的场景，如果需要在其他非调试场合下使用这个类，建议不要采用using模式。</remarks>
     public class CodeExecutedTimespanResult : IDisposable
-   {
-      /// <summary>
-      /// 构造函数，创建一个默认的CodeExecutedTimestampResult实例。
-      /// </summary>
-      public CodeExecutedTimespanResult()
-      {
-         Stopwatch = new Stopwatch();
-         ExecuteTime = DateTime.Now;
-         Stopwatch.Start();
-         CodeName = $"CodeExecutedTime_{ExecuteTime.Ticks}";
-         ExecutedTimespan = 0;
-      }
-      /// <summary>
-      /// 构造函数，创建一个指定所执行代码描述文本或者注释文本的CodeExecutedTimestampResult实例。
-      /// </summary>
-      /// <param name="codeName">所执行的代码的描述文本或者注释文本。</param>
-      public CodeExecutedTimespanResult(string codeName)
-      {
-         Stopwatch = new Stopwatch();
-         ExecuteTime = DateTime.Now;
-         Stopwatch.Start();
-         CodeName = codeName;
-         ExecutedTimespan = 0;
-      }
-      /// <summary>
-      /// 获取或设置当前实例所执行的代码的描述文本或者注释文本。
-      /// </summary>
-      public string CodeName { get; set; }
-      /// <summary>
-      /// 获取当前实例在执行代码时所花费的时长。
-      /// </summary>
-      public long ExecutedTimespan { get; private set; }
-      /// <summary>
-      /// 获取当前实例在代码开始执行的时候的本地时间。
-      /// </summary>
-      public DateTime ExecuteTime { get; private set; }
-      /// <summary>
-      /// 获取当前实例用于准确测量代码执行时长的实例。
-      /// </summary>
-      public Stopwatch Stopwatch { get; private set; }
-      /// <summary>
-      /// 结束测量某一段代码的执行时间间隔或者运行时长。
-      /// </summary>
-      public void StopMeasure()
-      {
-         Stopwatch.Stop();
-         ExecutedTimespan = Stopwatch.ElapsedMilliseconds;
-      }
-      /// <summary>
-      /// 手动释放该对象引用的所有内存资源。
-      /// </summary>
-      public void Dispose()
-      {
-         StopMeasure();
+    {
+        /// <summary>
+        /// 构造函数，创建一个默认的CodeExecutedTimestampResult实例。
+        /// </summary>
+        public CodeExecutedTimespanResult()
+        {
+            Stopwatch = new Stopwatch();
+            ExecuteTime = DateTime.Now;
+            Stopwatch.Start();
+            CodeName = $"CodeExecutedTime_{ExecuteTime.Ticks}";
+            ExecutedTimespan = 0;
+        }
+        /// <summary>
+        /// 构造函数，创建一个指定所执行代码描述文本或者注释文本的CodeExecutedTimestampResult实例。
+        /// </summary>
+        /// <param name="codeName">所执行的代码的描述文本或者注释文本。</param>
+        public CodeExecutedTimespanResult(string codeName)
+        {
+            Stopwatch = new Stopwatch();
+            ExecuteTime = DateTime.Now;
+            Stopwatch.Start();
+            CodeName = codeName;
+            ExecutedTimespan = 0;
+        }
+        /// <summary>
+        /// 获取或设置当前实例所执行的代码的描述文本或者注释文本。
+        /// </summary>
+        public string CodeName { get; set; }
+        /// <summary>
+        /// 获取当前实例在执行代码时所花费的时长。
+        /// </summary>
+        public long ExecutedTimespan { get; private set; }
+        /// <summary>
+        /// 获取当前实例在代码开始执行的时候的本地时间。
+        /// </summary>
+        public DateTime ExecuteTime { get; private set; }
+        /// <summary>
+        /// 获取当前实例用于准确测量代码执行时长的实例。
+        /// </summary>
+        public Stopwatch Stopwatch { get; private set; }
+        /// <summary>
+        /// 结束测量某一段代码的执行时间间隔或者运行时长。
+        /// </summary>
+        public void StopMeasure()
+        {
+            Stopwatch.Stop();
+            ExecutedTimespan = Stopwatch.ElapsedMilliseconds;
+        }
+        /// <summary>
+        /// 手动释放该对象引用的所有内存资源。
+        /// </summary>
+        public void Dispose()
+        {
+            StopMeasure();
 #if DEBUG
-         Console.WriteLine("{0}'s running time is {1} milliseconds.", CodeName, ExecutedTimespan);
+            Console.WriteLine("{0}'s running time is {1} milliseconds.", CodeName, ExecutedTimespan);
 #endif
 #if CONSOLE
-         Console.Write("Press any key to continue...");
-         Console.ReadKey(false);
+            Console.Write("Press any key to continue...");
+            Console.ReadKey(false);
 #endif
-         Stopwatch = null;
-         CodeName = null;
-         GC.SuppressFinalize(this);
-      }
-   }
+            Stopwatch = null;
+            CodeName = null;
+            GC.SuppressFinalize(this);
+        }
+    }
 }

@@ -132,7 +132,7 @@ namespace Carlos.Application
         /// </summary>
         /// <param name="url">指定的一个有效URL。</param>
         /// <returns>该操作将会返回一个object对象，这个对象是打开URL执行决策之后所得到的返回值。</returns>
-        public object Via(Uri url) => Via(url, out HttpStatusCode code);
+        public object Via(Uri url) => Via(url, out _);
         /// <summary>
         /// 打开一个URL，并根据URL Scheme（URL方案）做出相应的访问决策，并更新传递的HTTP状态码。
         /// </summary>
