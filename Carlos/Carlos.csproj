@@ -8,8 +8,8 @@
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2303.8</AssemblyVersion>
-    <FileVersion>1.0.2303.8</FileVersion>
+    <AssemblyVersion>1.0.2303.9</AssemblyVersion>
+    <FileVersion>1.0.2303.9</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C #, VB and C++/CLI.</Description>
   </PropertyGroup>
@@ -18,11 +18,13 @@
     <DefineConstants>TRACE,WIN32,CONSOLE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>True</Optimize>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>True</Optimize>
     <DefineConstants>$(DefineConstants)TRACE,WIN32,CONSOLE</DefineConstants>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

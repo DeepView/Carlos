@@ -27,7 +27,7 @@ namespace Carlos.Extends
         /// </code>
         /// 当然，<c>StringExtender.Right(String, Int32)</c>的使用方法也一样。
         /// </example>
-        public static string Left(string source, int length) => source.Substring(NUM_ZERO, length);
+        public static string Left(string source, int length) => source[..length];
         /// <summary>
         /// 剪切指定字符串的右边部分。
         /// </summary>

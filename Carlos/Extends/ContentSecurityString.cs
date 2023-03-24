@@ -83,7 +83,7 @@ namespace Carlos.Extends
         {
             try
             {
-                byte[] key = Encoding.UTF8.GetBytes(encryptKey.Substring(0, 8));
+                byte[] key = Encoding.UTF8.GetBytes(encryptKey[..8]);
                 byte[] iv = mKeys;
                 byte[] inputByteArr = Encoding.UTF8.GetBytes(Content);
                 if (SecurityStatus == SecurityStatus.Unencrypted)

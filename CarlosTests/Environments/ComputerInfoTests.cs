@@ -14,5 +14,23 @@ namespace Carlos.Environments.Tests
         {
             Console.WriteLine(ComputerInfo.Whoami());
         }
+
+        [TestMethod()]
+        public void OSTypeTest()
+        {
+            Console.WriteLine(ComputerInfo.OSType());
+        }
+
+        [TestMethod()]
+        public void ArchitectureTest()
+        {
+            Console.WriteLine(ComputerInfo.Architecture());
+        }
+
+        [TestMethod()]
+        public void OSTest()
+        {
+            Console.WriteLine(ComputerInfo.OS());
+        }
     }
 }

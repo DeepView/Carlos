@@ -2,6 +2,9 @@
 using System.Runtime.InteropServices;
 namespace Carlos.Application
 {
+    /// <summary>
+    /// 一个用来存放快照进程信息的结构体，用来Process32First指向第一个进程信息，并将进程信息抽取到ProcessEntry32中。
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public struct ProcessEntry32
     {
