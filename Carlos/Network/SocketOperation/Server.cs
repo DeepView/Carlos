@@ -67,10 +67,7 @@ namespace Carlos.Network.SocketOperation
                 {
                     while (true)
                     {
-                        if (IsStop != false)
-                        {
-                            break;
-                        }
+                        if (IsStop != false) break;
                         GetAcceptTcpClient();
                         Thread.Sleep(1);
                     }

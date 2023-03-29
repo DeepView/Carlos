@@ -261,8 +261,8 @@ namespace Carlos.Data
             {
                 if (disposing)
                 {
-                    if (Connection != null) Connection.Dispose();
-                    if (Command != null) Command.Dispose();
+                    Connection?.Dispose();
+                    Command?.Dispose();
                     if (ConnectionString != null) ConnectionString = null;
                 }
                 mDisposedValue = true;

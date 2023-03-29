@@ -266,7 +266,7 @@ namespace Carlos.Application
         /// 获取当前所有进程的进程名称。
         /// </summary>
         /// <returns>该操作将会返回一个包含目前所有Windows进程名称的List实例。</returns>
-        public static List<string> GetAllProcessName()
+        public static List<string> GetAllProcessesName()
         {
             List<string> list = new List<string>();
             List<Process> procs = Process.GetProcesses().ToList();

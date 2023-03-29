@@ -116,8 +116,15 @@ namespace Carlos.Network
         /// <param name="win32ErrorCode">需要传递并且用于开发者参考的错误代码。</param>
         /// <param name="win32ErrorInformation">需要传递并且用于开发者参考的错误消息。</param>
         /// <returns>如果操作成功则会返回true，否则会返回false。</returns>
-        /// <remarks>需要在调用方访问Cabinink.Windows.Privileges.PrivilegeGetter.NeedAdministratorsPrivilege() 方法，然后才能调用此方法，否则将会抛出System.Security.SecurityException异常。</remarks>
-        [PrincipalPermission(SecurityAction.Demand, Role = "Administrators")]
+        /// <remarks>
+        /// <para>需要在调用方访问Carlos.Application.Win32Privileges.PrivilegeGetter.NeedAdministratorsPrivilege()方法，然后才能调用此方法，否则将会抛出System.Security.SecurityException异常。</para>
+        /// <para>但是在.NET Core运行时中，这个方法将不再支持PrincipalPermission属性，请改用在项目的manifest文件中提升用户的安全策略，这个则需要修改项目manifest文件的requestedExecutionLevel设置，可供参考的设置代码如下所示。</para>
+        /// <code language="xml">
+        /// &lt;requestedExecutionLevel level="requireAdministrator" uiAccess="false"/&gt;
+        /// </code>
+        /// <para>另外需要补充的是，在.NET Core项目中，一旦修改了manifest文件中的requestedExecutionLevel设置，则不需要访问Carlos.Application.Win32Privileges.PrivilegeGetter.NeedAdministratorsPrivilege()方法。</para>
+        /// </remarks>
+        [PrincipalPermission(SecurityAction.Demand, Role = "Administrators", Authenticated = true)]
         public bool UpdateLocalTime(out long win32ErrorCode, out string win32ErrorInformation)
         {
             win32ErrorCode = 0x0000;

@@ -10,7 +10,7 @@ namespace Carlos.Application
     /// <summary>
     /// 用于实现远程调用的Router简易实现类。
     /// </summary>
-    /// <example>
+    /// <remarks>
     /// 这个类常用于远程访问某个地址，或者调用本地程序集的接口，在使用这个类之前，说先要进行单例化：
     /// <code>
     /// RemoteCaller router = RemoteCaller.CreateInstance();
@@ -33,7 +33,7 @@ namespace Carlos.Application
     /// </code>
     /// Via方法支持通过URL的方式访问程序集（当前程序集或者指定的程序集）中的公开的静态方法，一般要实现其有效访问，需要为其对应的实例附加一个Protocol。
     /// <para>值得说明的是，每一个类的Protocol类，其类名称后面必须是Protocol结尾，且必须实现IRemoteCallProtocol接口。比如说存在如下一个User类：</para>
-    /// <code>
+    /// <code language="cs">
     /// public class User
     /// {
     ///    private int _id;
@@ -47,7 +47,7 @@ namespace Carlos.Application
     /// }
     /// </code>
     /// 那么我们就要为这个User类实现一个UserProtocol类，并实现IRemoteCallProtocol接口，示例代码如下：
-    /// <code>
+    /// <code language="cs">
     /// public class UserProtocol : IRemoteCallProtocol&lt;User&gt;
     /// {
     ///    public User Ctor(IDictionary&lt;string, object&gt; parameters)
@@ -66,7 +66,7 @@ namespace Carlos.Application
     /// </code>
     /// <para>注意，需要通过URL访问的接口必须为静态接口！</para>
     /// 当我们需要通过一个URL初始化一个User实例的时候，那么就可以通过下面的代码实现：
-    /// <code>
+    /// <code language="cs">
     /// RemoteCaller router = RemoteCaller.CreateInstance(Assembly.GetExecutingAssembly());
     /// string original = @"app://Namespace.User/Init?id=0&amp;name=cabinink";
     /// Uri nativebUrl = new Uri(original);
@@ -74,11 +74,11 @@ namespace Carlos.Application
     /// Console.WriteLine("{0}", obj.ToString());
     /// </code>
     /// 在上述代码呈现的链接里面，Namespace表示User类所在的命名空间，假设User类在MyApp.Core命名空间下，那么你的链接应该替换成如下所示：
-    /// <code>
-    /// string original = @"app://MyApp.Core.User/Init?id=0&amp;name=cabinink"
+    /// <code language="cs">
+    /// string original = @"app://MyApp.Core.User/Init?id=0&amp;name=cabinink";
     /// </code>
     /// 最后需要注意的是，一定要区分这类URL的字符串大小写。
-    /// </example>
+    /// </remarks>
     public class RemoteCaller
     {
         private string mAppSchemeName;//应用程序的URL方案名称。
@@ -97,14 +97,14 @@ namespace Carlos.Application
             private set
             {
                 value = new Dictionary<string, string>
-            {
-               { "OpenHttp", "http" },
-               { "OpenSslHttp", "https" },
-               { "OpenFtp", "ftp" },
-               { "OpenLocalFile", "file" },
-               { "OpenNative", AppSchemeName }
-            };
-                if (mSchemes == null) mSchemes = value;
+                {
+                    { "OpenHttp", "http" },
+                    { "OpenSslHttp", "https" },
+                    { "OpenFtp", "ftp" },
+                    { "OpenLocalFile", "file" },
+                    { "OpenNative", AppSchemeName }
+                };
+                mSchemes ??= value;
             }
         }
         /// <summary>
@@ -251,7 +251,7 @@ namespace Carlos.Application
         /// <returns>该操作将会得到一个打开这个FTP地址的进程。</returns>
         protected virtual Process OpenFtp(Uri ftpUrl)
         {
-            Process process = new Process();
+            Process process;
             if (ftpUrl == null) process = null;
             else process = Process.Start(ftpUrl.AbsoluteUri);
             return process;

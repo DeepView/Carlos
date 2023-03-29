@@ -8,7 +8,6 @@ namespace Carlos.Network.SocketOperation
     /// <summary>
     /// 一个适用于Socket的TCP客户端。
     /// </summary>
-    /// <seealso cref="SocketObject" />
     public class Client : SocketObject
     {
         private bool IsClose = false;

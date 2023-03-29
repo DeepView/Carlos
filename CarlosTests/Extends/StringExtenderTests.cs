@@ -44,5 +44,13 @@ namespace Carlos.Extends.Tests
             _ = StringExtender.Reversal(combined, isUsingPtr);
             Console.WriteLine(isUsingPtr ? "Used Pointor" : "Normal");
         }
+
+        [TestMethod()]
+        public void LeftTest()
+        {
+            string str = "ABCDEFG";
+            string left = str.Left(2);
+            Console.WriteLine(left);
+        }
     }
 }
