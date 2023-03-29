@@ -30,5 +30,19 @@ namespace Carlos.Extends.Tests
                 Console.WriteLine(ascii[i]);
             }
         }
+
+        [TestMethod()]
+        public void ReversalTest()
+        {
+            string st = "We're going to KTV to sing tonight. Do you want to go? If you want to go, please contact me through WeChat before 6:30 pm.";
+            string combined = "";
+            for (int i = 0; i < 5000; i++)
+            {
+                combined += st;
+            }
+            bool isUsingPtr = false;
+            _ = StringExtender.Reversal(combined, isUsingPtr);
+            Console.WriteLine(isUsingPtr ? "Used Pointor" : "Normal");
+        }
     }
 }

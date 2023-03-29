@@ -82,10 +82,37 @@ namespace Carlos.Extends
         /// </summary>
         /// <param name="source">需要被反转顺序的字符串</param>
         /// <returns>该操作将会返回一个全新的String实例，这个实例包含了source参数指定字符串的反转字符串。</returns>
-        public static string Reversal(string source)
+        public static string Reversal(string source) => Reversal(source, false);
+        /// <summary>
+        /// 反转字符串中每一个字符的顺序，可以选择是否使用指针操作来实现字符串操作，大多数情况下，用指针实现这个操作将会略微减少时间上的开销。
+        /// </summary>
+        /// <param name="source">需要被反转顺序的字符串</param>
+        /// <param name="isUsingPtr">是否使用指针来执行字符串反转的操作，如果这个参数为true，则将会使用指针来实现字符串反转操作，反之则使用标准模式来实现这个操作。</param>
+        /// <returns>该操作将会返回一个全新的String实例，这个实例包含了source参数指定字符串的反转字符串。</returns>
+        public static string Reversal(string source, bool isUsingPtr)
         {
-            char[] reversal = source.Reverse().ToArray();
-            return new string(reversal);
+            if (isUsingPtr)
+            {
+                char tmp;
+                unsafe
+                {
+                    fixed (char* ps = source)
+                    {
+                        for (int i = 0; i < source.Length / 2; i++)
+                        {
+                            tmp = ps[i];
+                            ps[i] = ps[source.Length - i - 1];
+                            ps[source.Length - i - 1] = tmp;
+                        }
+                    }
+                }
+                return source;
+            }
+            else
+            {
+                char[] reversal = source.Reverse().ToArray();
+                return new string(reversal);
+            }
         }
         /// <summary>
         /// 将指定字符串转换为对应的字节码列表。
@@ -103,25 +130,6 @@ namespace Carlos.Extends
             }
             return result;
         }
-        ///// <summary>
-        ///// 将指定字符串转换为对应的字节码数据。
-        ///// </summary>
-        ///// <param name="source">需要被转换的字符串。</param>
-        ///// <returns>该操作将会返回一个int指针类型，这个指针类型存储的是一系列Int32数据，用于表示一些字节码。</returns>
-        //[Obsolete("Need perfect.")]
-        //public unsafe static int* ToAsciiCode(string source)
-        //{
-        //   char[] src = source.ToArray();
-        //   fixed (int* result = stackalloc int[src.Length])
-        //   {
-        //      for (int i = 0; i < src.Length; i++)
-        //      {
-        //         int sglCode = Convert.ToInt32(src[i]);
-        //         result[i] = sglCode;
-        //      }
-        //      return result;
-        //   }
-        //}
         /// <summary>
         /// 一个简化版的String.Split方法，基于数组中的字符将字符串拆分为多个子字符串。
         /// </summary>

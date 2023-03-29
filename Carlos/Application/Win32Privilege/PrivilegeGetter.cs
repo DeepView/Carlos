@@ -38,7 +38,7 @@ namespace Carlos.Application.Win32Privilege
         /// <remarks>查看指定系统权限的特权值，如果操作成功则返回true，否则返回false，与此同时，还会将接收的信息反馈到LocallyUniqueIdentifier结构类里面。</remarks>
         [DllImport("advapi32.dll", CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool LookupPrivilegeValue(string systemName, string jurisdictionName, ref LocallyUniqueIdentifier luidPointer);
+        public static extern bool LookupPrivilegeValue(string systemName, string jurisdictionName, ref Luid luidPointer);
         /// <summary>
         /// 打开与进程相关联的访问令牌。
         /// </summary>
@@ -71,7 +71,7 @@ namespace Carlos.Application.Win32Privilege
         {
             try
             {
-                LocallyUniqueIdentifier locallyUniqueIdentifier = new LocallyUniqueIdentifier();
+                Luid locallyUniqueIdentifier = new Luid();
                 if (LookupPrivilegeValue(null, privilegeName, ref locallyUniqueIdentifier))
                 {
                     LuidAttributes luidAndAtt = new LuidAttributes()
@@ -115,7 +115,7 @@ namespace Carlos.Application.Win32Privilege
         {
             try
             {
-                LocallyUniqueIdentifier locallyUniqueIdentifier = new LocallyUniqueIdentifier();
+                Luid locallyUniqueIdentifier = new Luid();
                 if (LookupPrivilegeValue(null, privilegeName, ref locallyUniqueIdentifier))
                 {
                     LuidAttributes luidAndAtt = new LuidAttributes()
