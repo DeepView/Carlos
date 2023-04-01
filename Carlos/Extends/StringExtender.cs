@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+
 namespace Carlos.Extends
 {
     /// <summary>
@@ -80,15 +82,29 @@ namespace Carlos.Extends
         /// <summary>
         /// 反转字符串中每一个字符的顺序。
         /// </summary>
-        /// <param name="source">需要被反转顺序的字符串</param>
+        /// <param name="source">需要被反转顺序的字符串。</param>
         /// <returns>该操作将会返回一个全新的String实例，这个实例包含了source参数指定字符串的反转字符串。</returns>
-        public static string Reversal(this string source) => Reversal(source, false);
+        public static string Reversal(this string source) => source.SafeReversal();
         /// <summary>
         /// 反转字符串中每一个字符的顺序，可以选择是否使用指针操作来实现字符串操作，大多数情况下，用指针实现这个操作将会略微减少时间上的开销。
         /// </summary>
-        /// <param name="source">需要被反转顺序的字符串</param>
-        /// <param name="isUsingPtr">是否使用指针来执行字符串反转的操作，如果这个参数为true，则将会使用指针来实现字符串反转操作，反之则使用标准模式来实现这个操作。</param>
+        /// <param name="source">需要被反转顺序的字符串。</param>
+        /// <param name="isUsingPtr">请谨慎使用这个参数，该参数用于确定是否使用指针来执行字符串反转的操作，如果这个参数为true，则将会使用指针来实现字符串反转操作，反之则使用标准模式来实现这个操作。</param>
         /// <returns>该操作将会返回一个全新的String实例，这个实例包含了source参数指定字符串的反转字符串。</returns>
+        /// <remarks>
+        /// <para>由于String属于不可变对象，因此，所有的safe操作对于CLR而言都是安全的。因此，通过指针强行修改String对象的操作对于CLR而言属于未定义的行为（Undefined behavior），虽说在很多情况下，这种行为可以达到用户预期的目的，但是这些操作依旧存在不少隐患，这些隐患会导致某些场合下，导致代码无法达到用户的预期，比如说下面的这段代码：</para>
+        /// <code language="cs">
+        /// public static void Main(string[] args)
+        /// {
+        ///     string a = "devil";
+        ///     string b = "devil";
+        ///     a.Reversal(true);
+        ///     Console.WriteLine(b);
+        /// }
+        /// </code>
+        /// <para>如果不通过unsafe的方式执行字符串反转操作，上面的代码可以确定会输出<c>devil</c>。但是上面的代码一旦执行，有很大概率会输出这样一行结果：<c>lived</c>。</para>
+        /// <para>这是由于CLR会针对不可变设计的对象在性能开销上做了一定程度的性能改善与优化，因此看似两个毫无关联且值相同的String对象，一旦对某一个String对象执行了unsafe操作，将会影响到另外一个String对象，因为这两个毫无关联的String对象，其引用地址可能指向的都是同一个托管堆。</para>
+        /// </remarks>
         public static string Reversal(this string source, bool isUsingPtr)
         {
             if (isUsingPtr)
@@ -113,6 +129,50 @@ namespace Carlos.Extends
                 char[] reversal = source.Reverse().ToArray();
                 return new string(reversal);
             }
+        }
+        /// <summary>
+        /// 通过更加安全与高效的方式来反转字符串，是String.Reversal(true)的安全版本。
+        /// </summary>
+        /// <param name="source">需要被反转顺序的字符串</param>
+        /// <returns>该操作将会返回一个全新的String实例，这个实例包含了source参数指定字符串的反转字符串。</returns>
+        public static string SafeReversal(this string source) => string.Create(
+            source.Length,
+            source,
+            (dst, source) =>
+            {
+                var src = source.AsSpan();
+                for (var i = 0; i < src.Length; i++)
+                {
+                    dst[i] = src[^(i + 1)];
+                }
+            });
+        /// <summary>
+        /// 拼接两个字符串，该操作是通过指针的方式实现。
+        /// </summary>
+        /// <param name="source">原始字符串。</param>
+        /// <param name="spliced">需要拼接到原始字符串后面的字符串。</param>
+        /// <returns>该操作将会返回一个新的字符串，这个字符串正是拼接之后的字符串。</returns>
+        public static string Splice(this string source, string spliced)
+        {
+            char[] result;
+            unsafe
+            {
+                int i = 0, j = 0;
+                fixed (char* src = source, spl = spliced)
+                {
+                    while (src[i] != '\0') i++;
+                    while (spl[j] != '\0')
+                    {
+                        src[i] = spl[j];
+                        i++;
+                        j++;
+                    }
+                    //src[i] = '\0';
+                    result = new char[i + 1];
+                    for (int index = 0; index < i; index++) result[index] = src[index];
+                }
+            }
+            return new string(result);
         }
         /// <summary>
         /// 将指定字符串转换为对应的字节码列表。
