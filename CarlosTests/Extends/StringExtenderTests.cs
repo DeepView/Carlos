@@ -3,6 +3,7 @@ using Carlos.Extends;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace Carlos.Extends.Tests
 {
@@ -40,9 +41,7 @@ namespace Carlos.Extends.Tests
             {
                 combined += st;
             }
-            bool isUsingPtr = false;
-            _ = combined.Reversal(isUsingPtr);
-            Console.WriteLine(isUsingPtr ? "Used Pointor" : "Normal");
+            _ = combined.UnsafeReverse();
         }
 
         [TestMethod()]
@@ -50,7 +49,7 @@ namespace Carlos.Extends.Tests
         {
             string a = "ABCDEFG";
             string b = "ABCDEFG";
-            a.Reversal(true);
+            a.UnsafeReverse();
             Console.WriteLine(b);
         }
 
@@ -67,10 +66,9 @@ namespace Carlos.Extends.Tests
         {
             string s1 = "ABCDEFG";
             string s2 = "12345";
-            //s2 = s2.Splice(s1);
-            string r = "";
-            for (int i = 0; i < 200; i++) r = s2.Splice(s1);
-            Console.WriteLine(r);
+            string r = s2;
+            for (int i = 0; i < 2000; i++) s2.Glue(s1);
+            Console.WriteLine(s2);
         }
 
         [TestMethod()]
@@ -78,7 +76,7 @@ namespace Carlos.Extends.Tests
         {
             string s1 = "ABCDEFG";
             string s2 = "12345";
-            string r = s2.Splice(s1);
+            string r = s2.Glue(s1);
             for (int i = 0; i < r.Length; i++) Console.WriteLine(r[i]);
         }
 
@@ -87,7 +85,7 @@ namespace Carlos.Extends.Tests
         {
             string s1 = "ABCDEFG";
             string s2 = "12345";
-            for (int i = 0; i < 200; i++) s2 += s1;
+            for (int i = 0; i < 2000; i++) s2 += s1;
             Console.WriteLine(s2);
         }
 
@@ -96,8 +94,8 @@ namespace Carlos.Extends.Tests
         {
             string s1 = "ABCDEFG";
             string s2 = "12345";
-            StringBuilder sb = new StringBuilder(s2);
-            for (int i = 0; i < 200; i++) sb.Append(s1);
+            StringBuilder sb = new(s2);
+            for (int i = 0; i < 2000; i++) sb.Append(s1);
             Console.WriteLine(sb.ToString());
         }
 
@@ -110,7 +108,40 @@ namespace Carlos.Extends.Tests
             {
                 combined += st;
             }
-            _ = combined.SafeReversal();
+            _ = combined.SafeReverse();
+        }
+
+        private string ReadFile(string path)
+        {
+            string r;
+            StreamReader reader = new StreamReader(path);
+            r = reader.ReadToEnd();
+            reader.Close();
+            return r;
+        }
+
+        [TestMethod()]
+        public void CutTest()
+        {
+            string str = ReadFile(@"D:\jqmin.txt");
+            string cut;
+            int len = str.Length;
+            for (int i = 0; i < len - 1; i++) cut = str.Cut(0, i + 1);
+        }
+        [TestMethod()]
+        public void SubstringTest()
+        {
+            string str = ReadFile(@"D:\jqmin.txt");
+            string cut;
+            int len = str.Length;
+            for (int i = 0; i < len - 1; i++) cut = str.Substring(0, i + 1);
+        }
+
+        [TestMethod()]
+        public void RightTest()
+        {
+            string s = "HelloWorld";
+            Console.WriteLine(s.Right(5));
         }
     }
 }
