@@ -39,6 +39,13 @@ namespace Carlos.Extends
         /// 从指定索引开始裁剪指定长度的字符串。
         /// </summary>
         /// <param name="source">需要备裁剪的字符串。</param>
+        /// <param name="cutRange">一个Carlos.Extend.Int32Range实例，用于描述需要裁剪的范围。</param>
+        /// <returns></returns>
+        public static string Cut(this string source, Int32Range cutRange) => source.Cut(cutRange.Lower, cutRange.Upper);
+        /// <summary>
+        /// 从指定索引开始裁剪指定长度的字符串。
+        /// </summary>
+        /// <param name="source">需要备裁剪的字符串。</param>
         /// <param name="index">一个起始索引，指定从何处开始裁剪。</param>
         /// <param name="length">指定的裁剪长度。</param>
         /// <returns>该操作将会返回一个字符串，这个字符串是通过裁剪而得到的。</returns>
@@ -145,6 +152,32 @@ namespace Carlos.Extends
         /// <param name="spliced">需要拼接到原始字符串后面的字符串。</param>
         /// <returns>该操作将会返回一个新的字符串，这个字符串正是拼接之后的字符串。</returns>
         public static string Glue(this string source, string spliced) => new StringBuilder(source).Append(spliced.AsSpan()).ToString();
+        /// <summary>
+        /// 拼接两个字符串，该操作是基于操作Span的方式实现。
+        /// </summary>
+        /// <param name="source">原始字符串。</param>
+        /// <param name="splicedArray">需要拼接到原始字符串后面的字符串数组。</param>
+        /// <returns>该操作将会返回一个新的字符串，这个字符串正是拼接之后的字符串。</returns>
+        public static string Glue(this string source, string[] splicedArray) => Glue(source, splicedArray, string.Empty);
+        /// <summary>
+        /// 拼接两个字符串，该操作是基于操作Span的方式实现。
+        /// </summary>
+        /// <param name="source">原始字符串。</param>
+        /// <param name="splicedArray">需要拼接到原始字符串后面的字符串数组。</param>
+        /// <param name="delimiter">每个需要拼接的字符串与上一个字符串的分隔符。</param>
+        /// <returns>该操作将会返回一个新的字符串，这个字符串正是拼接之后的字符串。</returns>
+        public static string Glue(this string source, string[] splicedArray, string delimiter)
+        {
+            ReadOnlySpan<char> splicedSpan, delimiterSpan = delimiter.AsSpan();
+            StringBuilder builder = new StringBuilder(source);
+            for (int i = 0; i < splicedArray.Length; i++)
+            {
+                splicedSpan = splicedArray[i].AsSpan();
+                builder.Append(delimiterSpan);
+                builder.Append(splicedSpan);
+            }
+            return builder.ToString();
+        }
         /// <summary>
         /// 将指定字符串转换为对应的字节码列表。
         /// </summary>

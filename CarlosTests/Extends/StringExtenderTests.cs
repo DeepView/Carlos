@@ -143,5 +143,22 @@ namespace Carlos.Extends.Tests
             string s = "HelloWorld";
             Console.WriteLine(s.Right(5));
         }
+
+        [TestMethod()]
+        public void GlueTest()
+        {
+            string[] strings = { "Apple", "Microsoft", "Intel", "IBM", "Huawei", "NVIDIA", "AMD", "Google", "Oracle", "Alibaba", "Amazon", "Baidu", "Tencent", "Xiaomi", "ZTE" };
+            string enterprise = "Enterprise:".Glue(strings, "\r\n\t");
+            Console.WriteLine(enterprise);
+        }
+
+        [TestMethod()]
+        public void ClrGlueTest()
+        {
+            string[] strings = { "Apple", "Microsoft", "Intel", "IBM", "Huawei", "NVIDIA", "AMD", "Google", "Oracle", "Alibaba", "Amazon", "Baidu", "Tencent", "Xiaomi", "ZTE" };
+            string enterprise = "Enterprise:";
+            for (int i = 0; i < strings.Length; i++) enterprise += $"\r\n\t{strings[i]}";
+            Console.WriteLine(enterprise);
+        }
     }
 }
