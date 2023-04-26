@@ -60,14 +60,14 @@ namespace Carlos
         /// </summary>
         /// <param name="mouseLocation">指定的鼠标坐标。</param>
         /// <returns>鼠标坐标处的窗口句柄，如果没有，返回空句柄。</returns>
-        [DllImport("kernel32.dll", EntryPoint = "WindowFromPoint", CharSet = CharSet.Ansi)]
+        [DllImport("user32.dll", EntryPoint = "WindowFromPoint", CharSet = CharSet.Ansi)]
         private extern static IntPtr WindowFromPoint(Point mouseLocation);
         /// <summary>
         /// 获取鼠标所处位置的坐标。
         /// </summary>
         /// <param name="mouseLocation">随同指针在屏幕像素坐标中的位置载入的一个结构。</param>
         /// <returns>该操作将会获取一个Windows API操作状态代码，非零表示成功，零表示失败。</returns>
-        [DllImport("kernel32.dll", EntryPoint = "GetCursorPos", CharSet = CharSet.Ansi)]
+        [DllImport("user32.dll", EntryPoint = "GetCursorPos", CharSet = CharSet.Ansi)]
         private extern static bool GetCursorPos(out Point mouseLocation);
         /// <summary>
         /// 获取目前的应用程序所执行的Windows API的最近一个错误代码。
@@ -100,8 +100,8 @@ namespace Carlos
         /// 将装载的dll引用计数器减一，当引用计数器的值为0后，模块将从调用进程的地址空间退出，模块的句柄将不可再用。
         /// </summary>
         /// <param name="dllHandle">dll模块的句柄. LoadLibrary 或者 GetModuleHandle 函数返回该句柄</param>
-        /// <returns>如果执行成功, 返回值为非0<br></br><br>如果失败，返回值为0. 如果要获取更多的错误信息，请调用Marshal.GetLastWin32Error.</br></returns>
-        public static int ReleaseDynamicLinkLibrary(IntPtr dllHandle) => FreeLibrary(dllHandle);
+        /// <returns>如果执行成功, 返回值为true<br></br><br>如果失败，返回值为false. 如果要获取更多的错误信息，请调用Marshal.GetLastWin32Error.</br></returns>
+        public static bool ReleaseDynamicLinkLibrary(IntPtr dllHandle) => FreeLibrary(dllHandle) != 0;
         /// <summary>
         /// 获取外部函数的入口地址。
         /// </summary>
@@ -145,7 +145,7 @@ namespace Carlos
         /// </summary>
         /// <param name="mouseLocation">一个任意的Point结构体实例，该实例可以为任意值，但是建议不要赋值为null。</param>
         /// <returns>该操作将会返回当前鼠标所在位置所对应的窗体的Windows句柄的十六进制字符串。</returns>
-        public static string GetWindowHandleHexString(Point mouseLocation) => GetWindowHandle(mouseLocation).ToString("X");
+        public static string GetWindowHandleHexString(Point mouseLocation) => $"0x{GetWindowHandle(mouseLocation).ToString("X")}";
     }
 #endif
 }

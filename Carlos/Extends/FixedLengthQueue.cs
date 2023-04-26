@@ -1,41 +1,51 @@
 ﻿using System;
 using System.Linq;
-using System.Diagnostics;
 using System.Collections.Generic;
 namespace Carlos.Extends
 {
     /// <summary>
-    /// 一个支持泛型的双向链表实例。
+    /// 一个支持泛型的定长列表类。
     /// </summary>
-    /// <typeparam name="T">用于存放在链表中的数据的类型。</typeparam>
-    [DebuggerDisplay("BiDirectionalLinkedList=[Count:{Count}]")]
-    public class BiDirectionalLinkedList<T> : IDisposable
+    /// <typeparam name="T">用于存放在定长列表中的数据的类型。</typeparam>
+    public class FixedLengthQueue<T> : IDisposable
     {
         private bool mDisposedValue = false;//检测冗余调用
         /// <summary>
-        /// 构造函数，创建一个链表表头为空的双向链表。
+        /// 构造函数，创建一个指定长度的定长列表。
         /// </summary>
-        public BiDirectionalLinkedList() => Head = null;
-        /// <summary>
-        /// 构造函数，创建一个通过指定数组填充的双向链表。
-        /// </summary>
-        /// <param name="elements">用于填充数据的数组。</param>
-        public BiDirectionalLinkedList(T[] elements)
+        /// <param name="length">该定长列表的长度，这个值一旦确定，将无法更改。</param>
+        /// <exception cref="ArgumentOutOfRangeException">如果传递的参数length小于且等于0，则将会抛出这个异常。</exception>
+        public FixedLengthQueue(int length)
         {
-            Head = null;
-            AddRange(elements);
+            if (length > 0)
+            {
+                Length = length;
+                Head = null;
+            }
+            else throw new ArgumentOutOfRangeException("length", "The length must greater than zero.");
         }
         /// <summary>
-        /// 构造函数，创建一个通过指定List&lt;T&gt;列表实例填充的双向链表。
+        /// 获取当前定长列表的长度。
         /// </summary>
-        /// <param name="elements">用于填充数据的List&lt;T&gt;列表实例。</param>
-        public BiDirectionalLinkedList(List<T> elements)
+        public int Length { get; private set; }
+        /// <summary>
+        /// 获取当前定长列表实例的第一个节点。
+        /// </summary>
+        public ListNode<T> Head { get; private set; }
+        /// <summary>
+        /// 获取当前定长列表实例的最后一个节点。
+        /// </summary>
+        public ListNode<T> Tail
         {
-            Head = null;
-            AddRange(elements.ToArray());
+            get
+            {
+                ListNode<T> node = Head;
+                while (node.Next != null) node = node.Next;
+                return node;
+            }
         }
         /// <summary>
-        /// 获取当前实例所表示的双向链表所拥有元素的数量。
+        /// 获取当前定长列表示例的节点数量，节点数量有时候会小于列表长度，有时候会和列表长度相同。
         /// </summary>
         public int Count
         {
@@ -52,7 +62,7 @@ namespace Carlos.Extends
             }
         }
         /// <summary>
-        /// 获取当前实例所表示的双向链表指定索引所对应的节点。
+        /// 获取当前定长列表实例中指定索引所对应的节点。
         /// </summary>
         /// <param name="index">指定的索引。</param>
         /// <exception cref="ArgumentOutOfRangeException">当参数index指定的索引超出范围时，则会抛出这个异常。</exception>
@@ -75,55 +85,32 @@ namespace Carlos.Extends
             }
         }
         /// <summary>
-        /// 获取或设置（set代码对外不可见，因为权限为private）当前链表中的第一个节点。
+        /// 在定长队列的尾部添加新的节点。
         /// </summary>
-        public ListNode<T> Head { get; private set; }
-        /// <summary>
-        /// 获取当前链表中的最后一个节点。
-        /// </summary>
-        public ListNode<T> Tail
-        {
-            get
-            {
-                ListNode<T> node = Head;
-                while (node.Next != null) node = node.Next;
-                return node;
-            }
-        }
-        /// <summary>
-        /// 在指定索引所对应的节点插入一个元素。
-        /// </summary>
-        /// <param name="index">指定的索引。</param>
-        /// <param name="element">需要插入的元素。</param>
+        /// <param name="element">需要在链表尾部添加的新节点所包含的元素。</param>
         /// <returns>如果操作成功，则返回true，否则返回false。</returns>
-        /// <exception cref="ArgumentOutOfRangeException">当参数index指定的索引超出范围时，则会抛出这个异常。</exception>
-        public bool Insert(int index, T element)
+
+        public bool Add(T element)
         {
-            int countBeforeIns = Count;
-            int counter = 0;
-            ListNode<T> node = Head;
+            int countBeforeAdd = Count;
+            ListNode<T> node = new ListNode<T>();
             ListNode<T> inserted = new ListNode<T>(element);
-            if (index >= Count || index < 0) throw new ArgumentOutOfRangeException("index", "Index out of range.");
-            else
+            if (Head == null)
             {
-                if (index == 0)
-                {
-                    inserted.Next = Head;
-                    Head = inserted;
-                    return true;
-                }
-                while (counter < index - 1)
-                {
-                    counter++;
-                    node = node.Next;
-                }
-                inserted.Next = node.Next;
-                node.Next = inserted;
+                Head = inserted;
+                return true;
             }
-            return countBeforeIns < Count;
+            node = Head;
+            while (node.Next != null) node = node.Next;
+            node.Next = inserted;
+            if (Count > Length)
+            {
+                Head = Head.Next;
+            }
+            return countBeforeAdd < Count;
         }
         /// <summary>
-        /// 从链表中移除指定索引所对应的节点。
+        /// 从定长队列中移除指定索引所对应的节点。
         /// </summary>
         /// <param name="index">需要被移除的节点所对应的索引。</param>
         /// <returns>如果操作成功，则返回true，否则返回false。</returns>
@@ -151,7 +138,7 @@ namespace Carlos.Extends
             return countBeforeRemove > Count;
         }
         /// <summary>
-        /// 从链表中移除指定元素所对应的节点，这个操作只会移除第一个匹配到的节点。
+        /// 从定长队列中移除指定元素所对应的节点，这个操作只会移除第一个匹配到的节点。
         /// </summary>
         /// <param name="element">用于匹配并移除节点的元素。</param>
         /// <returns>如果操作成功，则返回true，否则返回false。</returns>
@@ -171,37 +158,6 @@ namespace Carlos.Extends
             }
             if (node.Next.Element.Equals(element)) node.NextToNull();
             return countBeforeRemove > Count;
-        }
-        /// <summary>
-        /// 在链表的尾部添加新的节点。
-        /// </summary>
-        /// <param name="element">需要在链表尾部添加的新节点所包含的元素。</param>
-        /// <returns>如果操作成功，则返回true，否则返回false。</returns>
-        public bool Add(T element)
-        {
-            int countBeforeAdd = Count;
-            ListNode<T> node = new ListNode<T>();
-            ListNode<T> inserted = new ListNode<T>(element);
-            if (Head == null)
-            {
-                Head = inserted;
-                return true;
-            }
-            node = Head;
-            while (node.Next != null) node = node.Next;
-            node.Next = inserted;
-            return countBeforeAdd < Count;
-        }
-        /// <summary>
-        /// 在链表尾部批量添加新的节点。
-        /// </summary>
-        /// <param name="elements">需要在链表尾部添加的新节点所包含的元素数组。</param>
-        /// <returns>如果操作成功，则返回true，否则返回false。</returns>
-        public bool AddRange(T[] elements)
-        {
-            int countBeforeAdd = Count;
-            for (int i = 0; i < elements.Length; i++) Add(elements[i]);
-            return countBeforeAdd < Count ? true : false;
         }
         /// <summary>
         /// 获取指定元素所对应节点的第一个索引。
@@ -256,7 +212,7 @@ namespace Carlos.Extends
             if (node.Element.Equals(replaced)) node.Element = element;
         }
         /// <summary>
-        /// 将链表的所有节点进行一次反转排序操作。
+        /// 将定长列表的所有节点进行一次反转排序操作。
         /// </summary>
         public void Reverse()
         {
@@ -278,18 +234,12 @@ namespace Carlos.Extends
             Head = nhNode;
         }
         /// <summary>
-        /// 同时获取指定元素所对应节点的第一个索引和最后一个索引。
+        /// 判断当前的定长列表是否为空。
         /// </summary>
-        /// <param name="element">进行节点匹配的元素。</param>
-        /// <returns>如果操作成功，则返回这个元素所对应节点的第一个索引和最后一个索引所构成的元组，如果未匹配到，则会返回(-1,-1)。</returns>
-        public (int, int) IndexOf(T element) => (FirstIndexOf(element), LastIndexOf(element));
-        /// <summary>
-        /// 判断当前的链表是否为空链表。
-        /// </summary>
-        /// <returns>如果链表为空链表，则返回true，否则返回false。</returns>
+        /// <returns>如果定长列表为空，则返回true，否则返回false。</returns>
         public bool IsEmpty() => Head == null;
         /// <summary>
-        /// 清除当前链表的所有节点。
+        /// 清除当前定长列表的所有节点。
         /// </summary>
         /// <returns>如果操作成功，则返回true，否则返回false。</returns>
         public bool Clear()
@@ -298,9 +248,9 @@ namespace Carlos.Extends
             return Count == 0;
         }
         /// <summary>
-        /// 获取当前链表的数组表达形式。
+        /// 获取当前定长列表的数组表达形式。
         /// </summary>
-        /// <returns>该操作会返回一个当前链表所对应的数组实例。</returns>
+        /// <returns>该操作会返回一个当前定长列表所对应的数组实例。</returns>
         public T[] ToArray()
         {
             T[] array = new T[Count];
@@ -315,15 +265,10 @@ namespace Carlos.Extends
             return array;
         }
         /// <summary>
-        /// 获取当前链表的List&lt;T&gt;表达形式。
+        /// 获取当前定长列表的List&lt;T&gt;表达形式。
         /// </summary>
-        /// <returns>该操作会返回一个当前链表所对应的List&lt;T&gt;实例。</returns>
+        /// <returns>该操作会返回一个当前定长列表所对应的List&lt;T&gt;实例。</returns>
         public List<T> ToList() => ToArray().ToList();
-        /// <summary>
-        /// 获取当前类的字符串表达形式。
-        /// </summary>
-        /// <returns>该操作返回当前类的字符串表达形式，这个字符串是当前类的一段Debug描述文本。</returns>
-        public override string ToString() => $"BiDirectionalLinkedList:[Count={Count}];";
         /// <summary>
         /// 释放该对象引用的所有内存资源。
         /// </summary>
