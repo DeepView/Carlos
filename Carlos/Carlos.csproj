@@ -8,8 +8,8 @@
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2304.18</AssemblyVersion>
-    <FileVersion>1.0.2304.18</FileVersion>
+    <AssemblyVersion>1.0.2304.20</AssemblyVersion>
+    <FileVersion>1.0.2304.20</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C #, VB and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
   </ItemGroup>
 
 </Project>

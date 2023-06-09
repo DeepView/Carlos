@@ -42,6 +42,7 @@ namespace Carlos.Extends.Tests
                 combined += st;
             }
             _ = combined.UnsafeReverse();
+            //_ = combined.SafeReverse();
         }
 
         [TestMethod()]
@@ -134,7 +135,7 @@ namespace Carlos.Extends.Tests
             string str = ReadFile(@"D:\jqmin.txt");
             string cut;
             int len = str.Length;
-            for (int i = 0; i < len - 1; i++) cut = str.Substring(0, i + 1);
+            for (int i = 0; i < len - 1; i++) cut = str[..(i + 1)];
         }
 
         [TestMethod()]
@@ -147,18 +148,23 @@ namespace Carlos.Extends.Tests
         [TestMethod()]
         public void GlueTest()
         {
+            string enterprise = "\r\n";
             string[] strings = { "Apple", "Microsoft", "Intel", "IBM", "Huawei", "NVIDIA", "AMD", "Google", "Oracle", "Alibaba", "Amazon", "Baidu", "Tencent", "Xiaomi", "ZTE" };
-            string enterprise = "Enterprise:".Glue(strings, "\r\n\t");
-            Console.WriteLine(enterprise);
+            for (int i = 0; i < 1000; i++) enterprise += "Enterprise:".Glue(strings, "\r\n\t");
+            //Console.WriteLine(enterprise);
         }
 
         [TestMethod()]
         public void ClrGlueTest()
         {
             string[] strings = { "Apple", "Microsoft", "Intel", "IBM", "Huawei", "NVIDIA", "AMD", "Google", "Oracle", "Alibaba", "Amazon", "Baidu", "Tencent", "Xiaomi", "ZTE" };
-            string enterprise = "Enterprise:";
-            for (int i = 0; i < strings.Length; i++) enterprise += $"\r\n\t{strings[i]}";
-            Console.WriteLine(enterprise);
+            string enterprise = "\r\n";
+            for (int x = 0; x < 1000; x++)
+            {
+                enterprise = "Enterprise:";
+                for (int i = 0; i < strings.Length; i++) enterprise += $"\r\n\t{strings[i]}";
+            }
+            //Console.WriteLine(enterprise);
         }
     }
 }

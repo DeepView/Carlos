@@ -4,6 +4,8 @@ using System.Drawing;
 using Carlos.Exceptions;
 using System.Security.Permissions;
 using System.Runtime.InteropServices;
+using Carlos.Devices;
+
 namespace Carlos
 {
 #if WIN32
@@ -69,6 +71,21 @@ namespace Carlos
         /// <returns>该操作将会获取一个Windows API操作状态代码，非零表示成功，零表示失败。</returns>
         [DllImport("user32.dll", EntryPoint = "GetCursorPos", CharSet = CharSet.Ansi)]
         private extern static bool GetCursorPos(out Point mouseLocation);
+        /// <summary>
+        /// 该函数检索一指定窗口的客户区域或整个屏幕的显示设备上下文环境的句柄。
+        /// </summary>
+        /// <param name="handle">设备上下文环境被检索的窗口的句柄，如果该值为NULL，GetDC则检索整个屏幕的设备上下文环境。</param>
+        /// <returns>操作如果成功，返回指定窗口客户区的设备上下文环境；如果失败，返回值为Null。</returns>
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetDC(IntPtr handle);
+        /// <summary>
+        /// 释放设备上下文，释放它以供其他应用程序使用。
+        /// </summary>
+        /// <param name="handle">要释放其设备上下文的窗口的句柄。</param>
+        /// <param name="hdc">需要释放的设备上下文。</param>
+        /// <returns>返回值指示设备上下文是否已释放。如果释放了设备上下文，则返回值为1，否则为0。</returns>
+        [DllImport("user32.dll", EntryPoint = "ReleaseDC")]
+        private static extern int ReleaseDC(IntPtr handle, IntPtr hdc);
         /// <summary>
         /// 获取目前的应用程序所执行的Windows API的最近一个错误代码。
         /// </summary>
@@ -144,8 +161,21 @@ namespace Carlos
         /// 获取当前鼠标所在位置所对应窗口的句柄的十六进制字符串。
         /// </summary>
         /// <param name="mouseLocation">一个任意的Point结构体实例，该实例可以为任意值，但是建议不要赋值为null。</param>
-        /// <returns>该操作将会返回当前鼠标所在位置所对应的窗体的Windows句柄的十六进制字符串。</returns>
+        /// <returns>该操作将会返回当前鼠标所在位置所对应的窗体的Windows句柄的以0x开头的十六进制字符串。</returns>
         public static string GetWindowHandleHexString(Point mouseLocation) => $"0x{GetWindowHandle(mouseLocation).ToString("X")}";
+        /// <summary>
+        /// 该函数检索一指定窗口的客户区域或整个屏幕的显示设备上下文环境的句柄。
+        /// </summary>
+        /// <param name="handle">设备上下文环境被检索的窗口的句柄，如果该值为NULL，GetDC则检索整个屏幕的设备上下文环境。</param>
+        /// <returns>操作如果成功，返回指定窗口客户区的设备上下文环境；如果失败，返回值为Null。</returns>
+        public static IntPtr GetDeviceContext(IntPtr handle) => GetDC(handle);
+        /// <summary>
+        /// 释放设备上下文，释放它以供其他应用程序使用。
+        /// </summary>
+        /// <param name="handle">要释放其设备上下文的窗口的句柄。</param>
+        /// <param name="deviceContext">需要释放的设备上下文。</param>
+        /// <returns>返回值指示设备上下文是否已释放。如果释放了设备上下文，则返回值为true，否则为false。</returns>
+        public static bool ReleaseDeviceContext(IntPtr handle, IntPtr deviceContext) => ReleaseDC(handle, deviceContext) != 0;
     }
 #endif
 }

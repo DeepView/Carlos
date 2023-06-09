@@ -4,36 +4,38 @@ using System.Collections.Generic;
 namespace Carlos.Extends
 {
     /// <summary>
-    /// 一个支持泛型的定长列表类。
+    /// 一个支持泛型的定长队列类。
     /// </summary>
-    /// <typeparam name="T">用于存放在定长列表中的数据的类型。</typeparam>
+    /// <typeparam name="T">用于存放在定长队列中的数据的类型。</typeparam>
     public class FixedLengthQueue<T> : IDisposable
     {
         private bool mDisposedValue = false;//检测冗余调用
         /// <summary>
-        /// 构造函数，创建一个指定长度的定长列表。
+        /// 构造函数，创建一个指定长度的定长队列。
         /// </summary>
-        /// <param name="length">该定长列表的长度，这个值一旦确定，将无法更改。</param>
+        /// <param name="length">该定长队列的长度，这个值一旦确定，将无法更改。</param>
         /// <exception cref="ArgumentOutOfRangeException">如果传递的参数length小于且等于0，则将会抛出这个异常。</exception>
         public FixedLengthQueue(int length)
         {
             if (length > 0)
             {
+                IsEnableRecycle = true;
+                RecycleNodeIndex = -1;
                 Length = length;
                 Head = null;
             }
             else throw new ArgumentOutOfRangeException("length", "The length must greater than zero.");
         }
         /// <summary>
-        /// 获取当前定长列表的长度。
+        /// 获取当前定长队列的长度。
         /// </summary>
         public int Length { get; private set; }
         /// <summary>
-        /// 获取当前定长列表实例的第一个节点。
+        /// 获取当前定长队列实例的第一个节点。
         /// </summary>
         public ListNode<T> Head { get; private set; }
         /// <summary>
-        /// 获取当前定长列表实例的最后一个节点。
+        /// 获取当前定长队列实例的最后一个节点。
         /// </summary>
         public ListNode<T> Tail
         {
@@ -45,7 +47,7 @@ namespace Carlos.Extends
             }
         }
         /// <summary>
-        /// 获取当前定长列表示例的节点数量，节点数量有时候会小于列表长度，有时候会和列表长度相同。
+        /// 获取当前定长队列示例的节点数量，节点数量有时候会小于列表长度，有时候会和列表长度相同。
         /// </summary>
         public int Count
         {
@@ -62,7 +64,24 @@ namespace Carlos.Extends
             }
         }
         /// <summary>
-        /// 获取当前定长列表实例中指定索引所对应的节点。
+        /// 获取或设置当前定长队列实例是否启用数据回收站。
+        /// </summary>
+        public bool IsEnableRecycle { get; set; }
+        /// <summary>
+        /// 获取或设置当前定长列表实例的回收站数据，这个属性只能保存一个节点数据，并且在实例被销毁之后，回收站数据也将会清空。
+        /// </summary>
+        public ListNode<T> Recycle { get; set; }
+        /// <summary>
+        /// 获取当前定长列表实例的回收站数据，在进入回收站之前于定长队列中的索引。如果这个索引值为-1，则说明Recycle属性为null。
+        /// </summary>
+        public int RecycleNodeIndex { get; private set; }
+        /// <summary>
+        /// 获取当前定长队列的节点恢复功能是否可用。
+        /// </summary>
+        /// <returns>该操作将会返回一个值，如果这个值为true，则表示该实例的节点恢复功能可用，否则不可用。</returns>
+        public bool CanRecovery => Recycle != null;
+        /// <summary>
+        /// 获取当前定长队列实例中指定索引所对应的节点。
         /// </summary>
         /// <param name="index">指定的索引。</param>
         /// <exception cref="ArgumentOutOfRangeException">当参数index指定的索引超出范围时，则会抛出这个异常。</exception>
@@ -105,6 +124,11 @@ namespace Carlos.Extends
             node.Next = inserted;
             if (Count > Length)
             {
+                if (IsEnableRecycle)
+                {
+                    Recycle = Head;
+                    RecycleNodeIndex = 0;
+                }
                 Head = Head.Next;
             }
             return countBeforeAdd < Count;
@@ -125,6 +149,11 @@ namespace Carlos.Extends
             {
                 if (index == 0)
                 {
+                    if (IsEnableRecycle)
+                    {
+                        Recycle = Head.Next;
+                        RecycleNodeIndex = index;
+                    }
                     Head.BackwardsPointer();
                     return true;
                 }
@@ -132,6 +161,11 @@ namespace Carlos.Extends
                 {
                     counter++;
                     node = node.Next;
+                }
+                if (IsEnableRecycle)
+                {
+                    Recycle = node.Next;
+                    RecycleNodeIndex = counter;
                 }
                 node.BackwardsPointer();
             }
@@ -144,6 +178,7 @@ namespace Carlos.Extends
         /// <returns>如果操作成功，则返回true，否则返回false。</returns>
         public bool Remove(T element)
         {
+            int index = 0;
             int countBeforeRemove = Count;
             while (Head.Element.Equals(element)) Head = Head.Next;
             ListNode<T> node = Head;
@@ -151,13 +186,40 @@ namespace Carlos.Extends
             {
                 if (node.Next.Element.Equals(element))
                 {
+                    if (IsEnableRecycle)
+                    {
+                        Recycle = node.Next;
+                        RecycleNodeIndex = index;
+                    }
                     node.BackwardsPointer();
                     continue;
                 }
+                index++;
                 node = node.Next;
             }
             if (node.Next.Element.Equals(element)) node.NextToNull();
             return countBeforeRemove > Count;
+        }
+        /// <summary>
+        /// 恢复Add或者Remove操作。
+        /// </summary>
+        public void Recovery()
+        {
+            if (CanRecovery)
+            {
+                if (RecycleNodeIndex == 0)
+                {
+                    Head = Recycle;
+                    this[Length - 1].NextToNull();
+                }
+                else
+                {
+                    Recycle.Next = this[RecycleNodeIndex];
+                    this[RecycleNodeIndex - 1].Next = Recycle;
+                }
+                Recycle = null;
+                RecycleNodeIndex = -1;
+            }
         }
         /// <summary>
         /// 获取指定元素所对应节点的第一个索引。
@@ -212,7 +274,7 @@ namespace Carlos.Extends
             if (node.Element.Equals(replaced)) node.Element = element;
         }
         /// <summary>
-        /// 将定长列表的所有节点进行一次反转排序操作。
+        /// 将定长队列的所有节点进行一次反转排序操作。
         /// </summary>
         public void Reverse()
         {
@@ -234,12 +296,12 @@ namespace Carlos.Extends
             Head = nhNode;
         }
         /// <summary>
-        /// 判断当前的定长列表是否为空。
+        /// 判断当前的定长队列是否为空。
         /// </summary>
-        /// <returns>如果定长列表为空，则返回true，否则返回false。</returns>
+        /// <returns>如果定长队列为空，则返回true，否则返回false。</returns>
         public bool IsEmpty() => Head == null;
         /// <summary>
-        /// 清除当前定长列表的所有节点。
+        /// 清除当前定长队列的所有节点。
         /// </summary>
         /// <returns>如果操作成功，则返回true，否则返回false。</returns>
         public bool Clear()
@@ -248,9 +310,9 @@ namespace Carlos.Extends
             return Count == 0;
         }
         /// <summary>
-        /// 获取当前定长列表的数组表达形式。
+        /// 获取当前定长队列的数组表达形式。
         /// </summary>
-        /// <returns>该操作会返回一个当前定长列表所对应的数组实例。</returns>
+        /// <returns>该操作会返回一个当前定长队列所对应的数组实例。</returns>
         public T[] ToArray()
         {
             T[] array = new T[Count];
@@ -265,9 +327,9 @@ namespace Carlos.Extends
             return array;
         }
         /// <summary>
-        /// 获取当前定长列表的List&lt;T&gt;表达形式。
+        /// 获取当前定长队列的List&lt;T&gt;表达形式。
         /// </summary>
-        /// <returns>该操作会返回一个当前定长列表所对应的List&lt;T&gt;实例。</returns>
+        /// <returns>该操作会返回一个当前定长队列所对应的List&lt;T&gt;实例。</returns>
         public List<T> ToList() => ToArray().ToList();
         /// <summary>
         /// 释放该对象引用的所有内存资源。
@@ -282,6 +344,11 @@ namespace Carlos.Extends
             {
                 if (disposing)
                 {
+                    if (Recycle != null)
+                    {
+                        Recycle.NextToNull();
+                        Recycle = null;
+                    }
                     while (null != Head)
                     {
                         Head.NextToNull();

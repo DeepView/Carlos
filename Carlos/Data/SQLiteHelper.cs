@@ -87,9 +87,9 @@ namespace Carlos.Data
         /// <returns>如果连接成功，则返回true，否则返回false。</returns>
         public virtual bool Connect()
         {
-            if (Connection != null) Connection.Open();
+            Connection?.Open();
             if (Command != null) Command = new SQLiteCommand(Connection);
-            return IsConnected;
+            return ConnectionState != ConnectionState.Closed;
         }
         /// <summary>
         /// 断开与数据库的连接。
@@ -97,7 +97,7 @@ namespace Carlos.Data
         /// <returns>如果断开连接成功，则返回true，否则返回false。</returns>
         public virtual bool Disconnect()
         {
-            if (Connection != null) Connection.Close();
+            Connection?.Close();
             return !IsConnected;
         }
         /// <summary>
@@ -146,7 +146,7 @@ namespace Carlos.Data
                     Command.Parameters.Add(parameter);
             }
             int affectedRows = Command.ExecuteNonQuery();
-            if (transaction != null) transaction.Commit();
+            transaction?.Commit();
             return affectedRows;
         }
         /// <summary>
@@ -167,7 +167,7 @@ namespace Carlos.Data
             }
             SQLiteDataAdapter adapter = new SQLiteDataAdapter(Command);
             DataTable data = new DataTable();
-            if (adapter != null) adapter.Fill(data);
+            adapter?.Fill(data);
             return data;
         }
         /// <summary>
@@ -242,8 +242,11 @@ namespace Carlos.Data
         {
             SQLiteHelper sqlite = new SQLiteHelper(new Uri(databaseFileUrl));
             sqlite.Connect();
-            sqlite.ExecuteSql("create table demo(id integer not null primary key autoincrement unique)");
-            sqlite.ExecuteSql("drop table demo");
+            if (sqlite.IsConnected)
+            {
+                sqlite.ExecuteSql("create table demo(id integer not null primary key autoincrement unique)");
+                sqlite.ExecuteSql("drop table demo");
+            }
             sqlite.Disconnect();
         }
         /// <summary>
