@@ -18,8 +18,9 @@ namespace Carlos.Devices.Tests
         {
             Size res = Screen.GetResolving();
             Console.WriteLine($"Resolving = {res.Width}*{res.Height}");
-            Console.WriteLine($"BitsPerPixel = {Screen.GetBitsPerPixel()}");
-            Console.WriteLine($"RefreshRate = {Screen.GetRefreshRate()}");
+            Console.WriteLine($"BitsPerPixel = {Screen.GetBitsPerPixel()} bit");
+            Console.WriteLine($"RefreshRate = {Screen.GetRefreshRate()} Hz");
+            Console.WriteLine($"IsTouch = {Screen.IsTouchScreen(out int touchNumber)}/TouchNumber is {touchNumber}");
         }
     }
 }

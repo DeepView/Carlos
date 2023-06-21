@@ -107,7 +107,7 @@ namespace Carlos.Network.SocketOperation
                 }
                 else
                 {
-                    sks.ThrowedException = new Exception("客户端没有初始化.!");
+                    sks.ThrowedException = new Exception("The client is not initializated.");
                 }
                 PushSockets?.Invoke(sks);
             }

@@ -4,8 +4,6 @@ using System.Drawing;
 using Carlos.Exceptions;
 using System.Security.Permissions;
 using System.Runtime.InteropServices;
-using Carlos.Devices;
-
 namespace Carlos
 {
 #if WIN32

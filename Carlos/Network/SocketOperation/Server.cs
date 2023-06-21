@@ -13,7 +13,7 @@ namespace Carlos.Network.SocketOperation
     /// <seealso cref="SocketObject" />
     public class Server : SocketObject
     {
-        private bool IsStop = false;
+        private bool isStop = false;
         private object obj = new object();
         private Semaphore semap = new Semaphore(5, 5000);
         private TcpListener listener;
@@ -63,16 +63,16 @@ namespace Carlos.Network.SocketOperation
             try
             {
                 listener.Start();
-                Thread AccTh = new Thread(new ThreadStart(delegate
+                Thread accTh = new Thread(new ThreadStart(delegate
                 {
                     while (true)
                     {
-                        if (IsStop != false) break;
+                        if (isStop != false) break;
                         GetAcceptTcpClient();
                         Thread.Sleep(1);
                     }
                 }));
-                AccTh.Start();
+                accTh.Start();
             }
             catch (SocketException throwedSocketException)
             {
@@ -92,7 +92,7 @@ namespace Carlos.Network.SocketOperation
             {
                 listener.Stop();
                 listener = null;
-                IsStop = true;
+                isStop = true;
                 PushSockets = null;
             }
         }

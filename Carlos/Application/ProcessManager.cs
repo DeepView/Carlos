@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Drawing;
+using Carlos.Devices;
 using System.Security;
 using System.Threading;
 using System.Diagnostics;
@@ -418,6 +420,32 @@ namespace Carlos.Application
             return processHandle;
         }
         /// <summary>
+        /// 通过一个窗口句柄获得创建该窗口的进程实例。
+        /// </summary>
+        /// <param name="windowHandle">一个窗口句柄。</param>
+        /// <returns>在没有抛出任何异常的情况下，该操作将会返回一个Process实例。</returns>
+        /// <exception cref="ArgumentException">如果这个方法所传递的窗口句柄不存在，则将会抛出这个异常。</exception>
+        public static Process GetProcessByHandle(IntPtr windowHandle)
+        {
+            int threadId = GetWindowThreadProcessId(windowHandle, out int pid);
+            if (threadId == 0)
+            {
+                throw new ArgumentException("This window handle is not existing.", nameof(windowHandle));
+            }
+            return Process.GetProcessById(pid);
+        }
+        /// <summary>
+        /// 通过当前鼠标光标位置所在窗口来获得创建这个窗口的进程实例。
+        /// </summary>
+        /// <returns>在没有抛出任何异常的情况下，该操作将会返回一个Process实例。</returns>
+        public static Process GetProcessByCursor() => GetProcessByScreenLocation(MouseHelper.GetCursorPosition());
+        /// <summary>
+        /// 通过指定的屏幕位置所在窗口来获得创建这个窗口的进程实例。
+        /// </summary>
+        /// <param name="location">指定的屏幕位置。</param>
+        /// <returns>在没有抛出任何异常的情况下，该操作将会返回一个Process实例。</returns>
+        public static Process GetProcessByScreenLocation(Point location) => GetProcessByHandle(Win32ApiHelper.GetWindowHandle(location));
+        /// <summary>
         /// 获取当前窗口的句柄。
         /// </summary>
         /// <param name="processId">窗口所在进程的PID。</param>
@@ -448,10 +476,9 @@ namespace Carlos.Application
         /// <returns>如果该操作成功，则返回true，否则返回false。</returns>
         public static bool EnumWindowsProc(IntPtr handle, uint lParam)
         {
-            int uiPid = 0;
             if (GetParent(handle) == IntPtr.Zero)
             {
-                GetWindowThreadProcessId(handle, out uiPid);
+                GetWindowThreadProcessId(handle, out int uiPid);
                 if (uiPid == lParam)
                 {
                     mProcessHandleHashTable.Add(uiPid, handle);

@@ -208,6 +208,7 @@ namespace Carlos.Application
         /// </summary>
         /// <param name="nativeUrl">一个基于程序集方案的URL。</param>
         /// <returns>该操作将会返回执行其详细决策之后所得到的返回结果。</returns>
+        /// <exception cref="NotSupportedException">当需要RemoteCall的类未实现<see cref="IRemoteCallProtocol{T}">IRemoteCallProtocol</see>接口时，则将会抛出这个异常。</exception>
         protected virtual object OpenNative(Uri nativeUrl)
         {
             string originalUrl = nativeUrl.OriginalString;
@@ -228,7 +229,7 @@ namespace Carlos.Application
             Type type = obj.GetType();
             if (IsMustProtocol)
             {
-                if (type.GetInterface("Cabinink.Windows.Applications.IRemoteCallProtocol`1", true) == null)
+                if (type.GetInterface("Carlos.Application.IRemoteCallProtocol`1", true) == null)
                 {
                     throw new NotSupportedException("Not supported type.");
                 }
