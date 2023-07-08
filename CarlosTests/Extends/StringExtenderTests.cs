@@ -22,6 +22,12 @@ namespace Carlos.Extends.Tests
             bool isEquals = "qwertyuiopasdfghjklzxcvbnm".Equals("qwertyuiopasdfghjklzxcvbnm");
             Console.WriteLine(isEquals);
         }
+        [TestMethod("Xor String Equals Test")]
+        public void IsEqualsXorTest()
+        {
+            bool isEquals = StringExtender.IsEqualsXor("qwertyuiopasdfghjklzxcvbnm", "qwertyuiopasdfghjklzxcvbnm");
+            Console.WriteLine(isEquals);
+        }
         [TestMethod("Convert to ASCII Code Test")]
         public unsafe void ToCodeTest()
         {

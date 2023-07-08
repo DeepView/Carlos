@@ -99,6 +99,32 @@ namespace Carlos.Extends
             return bRet;
         }
         /// <summary>
+        /// 使用位运算比较两个字符串是否相同。
+        /// </summary>
+        /// <param name="left">第一个字符串。</param>
+        /// <param name="right">第二个字符串。</param>
+        /// <returns>该操作将会返回一个Boolean数据，该数据说明了两个字符串是否相同，如果相同则返回true，否则返回false。</returns>
+        public static bool IsEqualsXor(this string left,string right)
+        {
+            bool equal = true;
+            char[] leftChars = left.ToCharArray();
+            char[] rightChars = right.ToCharArray();
+            if( leftChars.Length != rightChars.Length ) equal = false;
+            else
+            {
+                for(int i = 0;i< leftChars.Length; i++)
+                {
+                    int xor = leftChars[i] ^ rightChars[i];
+                    if( xor != 0 )
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+            }
+            return equal;
+        }
+        /// <summary>
         /// 通过指针操作的方式来反转字符串中每一个字符的顺序，在绝大多数情况下，相对于传统的字符串反转操作，这个方法将会节省大约10%的时间开销。
         /// </summary>
         /// <param name="source">需要被反转顺序的字符串。</param>
