@@ -27,6 +27,14 @@ namespace Carlos.Extends
         /// </summary>
         public uint RealtimeFrequency { get; private set; }
         /// <summary>
+        /// 获取当前实例在上一次抽奖的结果。
+        /// </summary>
+        public bool LastBingoResult { get; private set; }
+        /// <summary>
+        /// 获取或设置当前实例的随机数种子。
+        /// </summary>
+        public int Seed { get; set; }
+        /// <summary>
         /// 构造函数，创建一个指定基础概率，概率增量和保底次数的抽奖实例。
         /// </summary>
         /// <param name="initProbability">指定的基础概率。</param>
@@ -39,6 +47,7 @@ namespace Carlos.Extends
             Increment = increment;
             InevitableFrequency = inevitableFrequency;
             RealtimeFrequency = 0;
+            Seed = GetHashCode();
         }
         /// <summary>
         /// 重置抽奖实例，这个操作会清零实时抽奖次数，重置实时抽奖概率。
@@ -52,38 +61,74 @@ namespace Carlos.Extends
         /// 开始抽奖，但抽奖成功后并不会重置实例。
         /// </summary>
         /// <returns>该操作会返回一个Boolean值，如果这个值为true则表示抽奖成功，否则是抽奖未果。</returns>
-        public bool Bingo() => Bingo(false);
+        public bool Bingo() => Bingo(false, 4);
         /// <summary>
         /// 开始抽奖，并指定是否在抽奖成功后重置实例。
         /// </summary>
-        /// <param name="isResetAfterBingo">一个Boolean值，用于指示在抽奖成功后是否重置当前实例。</param>
+        /// <param name="isResetAfterBingo">一个Boolean值，用于指示在非保底抽奖成功后是否重置当前实例。</param>
+        /// <param name="accuracy">抽奖的样本精度，精度越高，抽奖的结果就可能越接近期望概率。</param>
         /// <returns>该操作会返回一个Boolean值，如果这个值为true则表示抽奖成功，否则是抽奖未果。</returns>
         /// <remarks>值得注意的是，这个操作在传递false参数值的前提下，并抽奖成功，会根据实时抽奖次数是否达到保底次数，来决定是否重置实例，一旦达到了保底次数，则无论如何都会重置实时抽奖次数，且直接返回true。</remarks>
-        public bool Bingo(bool isResetAfterBingo)
+        /// <exception cref="ArgumentOutOfRangeException">当样本精度不在[2,9]这个数学范围内，则将会抛出这个异常。</exception>
+        public bool Bingo(bool isResetAfterBingo, int accuracy)
         {
-            RealtimeFrequency++;
-            if (RealtimeProbability >= InevitableFrequency)
+            object _sync_locker = new object();
+            lock (_sync_locker) RealtimeFrequency++;
+            if (RealtimeFrequency >= InevitableFrequency)
             {
                 Reset();
-                return true;
+                LastBingoResult = true;
             }
             else
             {
-                int range = 100000;
-                Random rnd = new Random();
+                if (accuracy < 2 || accuracy > 9)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(accuracy),
+                        "The accuracy is too low to meet the sample requirements, and the range of accuracy that meets the rules is [2,9].");
+                }
+                int range = (int)Math.Pow(10, accuracy);
+                Random rnd = new Random(Seed);
                 int bingoRes = rnd.Next(range);
                 if (bingoRes <= range * RealtimeProbability)
                 {
-                    if (isResetAfterBingo) Reset();
-                    else RealtimeProbability = InitProbability;
-                    return true;
+                    lock (_sync_locker)
+                    {
+                        if (isResetAfterBingo) Reset();
+                        else RealtimeProbability = InitProbability;
+                        LastBingoResult = true;
+                    }
                 }
                 else
                 {
-                    RealtimeProbability += Increment;
-                    return false;
+                    lock (_sync_locker)
+                    {
+                        RealtimeProbability += Increment;
+                        LastBingoResult = false;
+                    }
                 }
             }
+            return LastBingoResult;
+        }
+        /// <summary>
+        /// 根据指定的概率和样本精度进行抽奖。
+        /// </summary>
+        /// <param name="probability">用于抽奖的概率。</param>
+        /// <param name="accuracy">样本精度，精度越高，抽奖的结果就可能越接近期望概率。</param>
+        /// <returns>该操作会返回一个Boolean值，如果这个值为true则表示抽奖成功，否则是抽奖未果。</returns>
+        /// <exception cref="ArgumentOutOfRangeException">当样本精度不在[2,9]这个数学范围内，则将会抛出这个异常。</exception>
+        public static bool Bingo(double probability, int accuracy)
+        {
+            if (accuracy < 2 || accuracy > 9)
+            {
+                throw new ArgumentOutOfRangeException(nameof(accuracy),
+                    "The accuracy is too low to meet the sample requirements, and the range of accuracy that meets the rules is [2,9].");
+            }
+            int seed = new object().GetHashCode();
+            int range = (int)Math.Pow(10, accuracy);
+            Random random = new Random(seed);
+            int sample = random.Next(range);
+            if (sample <= range * probability) return true;
+            else return false;
         }
     }
 }
