@@ -8,7 +8,7 @@ namespace Carlos
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class EnumerationDescriptionAttribute : Attribute
     {
-        private string _description;//对应枚举的注释。
+        private readonly string _description;//对应枚举的注释。
         /// <summary>
         /// 构造函数，创建一个指定枚举注释的实例。
         /// </summary>

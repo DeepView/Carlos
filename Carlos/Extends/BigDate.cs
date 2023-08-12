@@ -158,9 +158,8 @@ namespace Carlos.Extends
         {
             get
             {
-                ulong days = 0;
                 int leapyear_count = 0;
-                days = (ulong)Math.Abs(MinimumYear) * 365 + (ulong)Year * 365;
+                ulong days = (ulong)Math.Abs(MinimumYear) * 365 + (ulong)Year * 365;
                 if (IsLeap) days += (ulong)new DateTime(2008, Month, Day).DayOfYear;
                 else days += (ulong)new DateTime(2010, Month, Day).DayOfYear;
                 for (int i = MinimumYear; i <= Year; i++)

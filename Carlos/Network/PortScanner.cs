@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using Carlos.Extends;
+using System.Threading;
 using System.Net.Sockets;
 using System.Collections;
 using System.Threading.Tasks;
@@ -87,9 +88,11 @@ namespace Carlos.Network
         {
             Random rand = new Random((int)DateTime.Now.Ticks);
             ClearOpenedPortsList();
+            CancellationTokenSource cancellationSource = new CancellationTokenSource();
             ParallelOptions parallelOptions = new ParallelOptions()
             {
-                MaxDegreeOfParallelism = ScanRange.GetDisparityAbs() >= 1024 ? -1 : 2
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+                CancellationToken = cancellationSource.Token
             };
             Parallel.For(ScanRange.Lower, ScanRange.Upper + 1, parallelOptions, (port) =>
             {
@@ -137,7 +140,7 @@ namespace Carlos.Network
                 isOpened = true;
             }
             catch (Exception) { isOpened = false; }
-            if (tcp != null) tcp.Close();
+            tcp?.Close();
             return isOpened;
         }
         /// <summary>
@@ -156,7 +159,7 @@ namespace Carlos.Network
             if (result.IsCompleted && scanSocket.Connected)
             {
                 OpenedPorts.Add(port);
-                if (ScanOutputHandlerCode != null) ScanOutputHandlerCode.Invoke(port);
+                ScanOutputHandlerCode?.Invoke(port);
             }
             scanSocket.Close();
         }
