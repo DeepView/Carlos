@@ -64,6 +64,10 @@ namespace Carlos.Extends
             }
         }
         /// <summary>
+        /// 获取当前定长队列是否已经装满了数据。
+        /// </summary>
+        public bool IsFull => Count == Length;
+        /// <summary>
         /// 获取或设置当前定长队列实例是否启用数据回收站。
         /// </summary>
         public bool IsEnableRecycle { get; set; }

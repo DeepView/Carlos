@@ -29,9 +29,9 @@ namespace Carlos.Tests
         [TestMethod()]
         public void LoadOrReleaseDllTest()
         {
-            nint handle = Win32ApiHelper.LoadDynamicLinkLibrary(@"gdi32.dll");
+            nint handle = Win32ApiHelper.LoadLib(@"gdi32.dll");
             Console.WriteLine(handle.ToString("X"));
-            bool isCompleted = Win32ApiHelper.ReleaseDynamicLinkLibrary(handle);
+            bool isCompleted = Win32ApiHelper.ReleaseLib(handle);
             Console.WriteLine(isCompleted);
             int syserr = Marshal.GetLastWin32Error();
             string errmsg = Win32ApiHelper.FormatErrorCode(syserr);

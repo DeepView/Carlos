@@ -96,6 +96,32 @@ namespace Carlos.Devices
         [DllImport("user32.dll")]
         public static extern int GetSystemMetrics(int index);
         /// <summary>
+        /// 检索指定坐标点的像素的RGB颜色值。
+        /// </summary>
+        /// <param name="hdc">设备环境句柄。</param>
+        /// <param name="x">指定要检查的像素点的逻辑X轴坐标。</param>
+        /// <param name="y">指定要检查的像素点的逻辑Y轴坐标。</param>
+        /// <returns>返回值是该象像点的RGB值。如果指定的像素点在当前剪辑区之外，那么返回值是CLR_INVALID。</returns>
+        [DllImport("gdi32.dll")]
+        private static extern uint GetPixel(IntPtr hdc, int x, int y);
+        /// <summary>
+        /// 为一个设备创建设备上下文环境。
+        /// </summary>
+        /// <param name="driverName">指向一个以Null结尾的字符串的指针，该字符串为显示驱动指定DISPLAY或者指定一个打印驱动程序名，通常为WINSPOOL。</param>
+        /// <param name="deviceName">指向一个以null结尾的字符串的指针，该字符串指定了正在使用的特定输出设备的名字，它不是打印机模式名。该参数必须被使用。</param>
+        /// <param name="output">该参数在32位应用中被忽略；并置为Null，它主要是为了提供与16位应用程序兼容，更多的信息参见下面的注释部分。</param>
+        /// <param name="initData">指向包含设备驱动程序的设备指定初始化数据的DEVMODE结构的指针，DocumentProperties函数检索指定设备获取已填充的结构，</param>
+        /// <returns>成功，返回值是特定设备的设备上下文环境的句柄；失败，返回值为Null。</returns>
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr CreateDC(string driverName, string deviceName, string output, IntPtr initData);
+        /// <summary>
+        /// 删除指定的设备上下文环境
+        /// </summary>
+        /// <param name="dc">设备上下文环境的句柄。</param>
+        /// <returns>成功，返回非零值；失败，返回零。</returns>
+        [DllImport("gdi32.dll")]
+        private static extern bool DeleteDC(IntPtr dc);
+        /// <summary>
         /// 该函数用来访问使用设备描述表的设备数据，该操作将会使用Zero句柄和说明该函数访问数据类型的索引来访问这些数据。
         /// </summary>
         /// <param name="deviceCapsIndex">指定返回项，或者是需要获取的数据。</param>
@@ -217,5 +243,20 @@ namespace Carlos.Devices
         /// 重置当前显示设备的亮度，该操作是基于ChangeBrightnessWithGamma方法实现的。
         /// </summary>
         public static void ResetBrightnessWithGamma() => SetBrightnessWithGamma(SYSTEM_DEFAULT_BRIGHTNESS_WITH_GAMMA);
+        /// <summary>
+        /// 获取指定像素的颜色。
+        /// </summary>
+        /// <param name="pixelPosition">指定像素在屏幕上的位置。</param>
+        /// <returns>该操作将会返回一个RGB结构的Color值，用于表示参数pixelPosition所指定像素的颜色。</returns>
+        public static Color GetPixelColor(Point pixelPosition)
+        {
+            IntPtr displayDC = CreateDC("DISPLAY", null, null, IntPtr.Zero);
+            uint colorref = GetPixel(displayDC, pixelPosition.X, pixelPosition.Y);
+            DeleteDC(displayDC);
+            byte r = (byte)colorref;
+            byte g = ((byte)(((short)(colorref)) >> 8));
+            byte b = ((byte)((colorref) >> 16));
+            return Color.FromArgb(r, g, b);
+        }
     }
 }
