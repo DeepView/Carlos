@@ -229,7 +229,12 @@ namespace Carlos.Extends
                         containers = table;
                         break;
                     case DefragmentMode.Row:
-                        //TODO: 需要完善DefragmentMode.Row相关代码。
+                        bool psforCondition = Size.rows >= Math.Pow(Environment.ProcessorCount, 2);
+                        if (psforCondition)
+                            Parallel.For(0, Size.rows, index => containers[index].Defragment());
+                        else
+                            for (int i = 0; i < Size.rows; i++)
+                                containers[i].Defragment();
                         break;
                     case DefragmentMode.Col:
                         //TODO: 需要完善DefragmentMode.Col相关代码。

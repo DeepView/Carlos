@@ -300,6 +300,31 @@ namespace Carlos.Extends
             Head = nhNode;
         }
         /// <summary>
+        /// 碎片整理，将零散的数据按照先后顺序进行重新存放
+        /// </summary>
+        public void Defragment()
+        {
+            if (Count == 0) return;
+            else
+            {
+                int operatCount = 0;
+                FixedLengthQueue<T> queue = new FixedLengthQueue<T>(Length);
+                for (int i = 0; i < Length; i++)
+                {
+                    if (this[i].Element != null)
+                    {
+                        queue.Add(this[i].Element);
+                        operatCount++;
+                    }
+                    if (operatCount >= Count) break;
+                }
+                Clear();
+                for (int i = 0; i < queue.Length; i++)
+                    Add(queue[i].Element);
+                queue.Dispose();
+            }
+        }
+        /// <summary>
         /// 判断当前的定长队列是否为空。
         /// </summary>
         /// <returns>如果定长队列为空，则返回true，否则返回false。</returns>
