@@ -99,6 +99,7 @@ namespace Carlos
             }
             return result;
         }
+#if WIN32
         /// <summary>
         /// 执行参数executedUnmanagedCode包含的非托管代码并检查是否写入了新的Win32错误代码。
         /// </summary>
@@ -133,5 +134,6 @@ namespace Carlos
             else win32ErrorCode = lastWin32ErrorCode;
             return result;
         }
+#endif
     }
 }
