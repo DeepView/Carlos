@@ -206,14 +206,14 @@ namespace Carlos.Extends
         /// <exception cref="InvalidOperationException">当在参数中传入一个不受代码支持的选项时，则将会抛出这个异常。</exception>
         public void Defragment(DefragmentMode defragmentMode)
         {
-            FixedLengthQueue<T> queue = new FixedLengthQueue<T>(Size.cols);
+            //FixedLengthQueue<T> queue = new FixedLengthQueue<T>(Size.cols);
+            FixedLengthQueue<T>[] table = new FixedLengthQueue<T>[Size.rows];
             if (Count == Size.rows * Size.cols) return;
             else
             {
                 switch (defragmentMode)
                 {
                     case DefragmentMode.Serial:
-                        FixedLengthQueue<T>[] table = new FixedLengthQueue<T>[Size.rows];
                         for (int i = 0; i < table.Length; i++)
                             table[i] = new FixedLengthQueue<T>(Size.cols);
                         for (int i = 0; i < Size.rows; i++)
@@ -223,7 +223,7 @@ namespace Carlos.Extends
                             {
                                 for (int j = 0; j < Size.cols; j++)
                                     if (!IsNullElement(i, j))
-                                        table[i][j].Element = containers[i][j].Element;
+                                        table[i].Add(containers[i][j].Element);
                             }
                         }
                         containers = table;
@@ -237,12 +237,40 @@ namespace Carlos.Extends
                                 containers[i].Defragment();
                         break;
                     case DefragmentMode.Col:
-                        //TODO: 需要完善DefragmentMode.Col相关代码。
+                        for (int i = 0; i < table.Length; i++)
+                            table[i] = new FixedLengthQueue<T>(Size.cols);
+                        for(int i = 0; i < Size.cols; i++)
+                        {
+                            for(int j = 0; j < Size.rows; j++)
+                            {
+                                bool isNullElement = IsNullElement(j, i);
+                                if (!isNullElement)
+                                    table[j].Add(containers[j][i].Element);
+                            }
+                        }
+                        containers = table;
                         break;
                     default:
                         throw new InvalidOperationException("Unsupported mode.");
                 }
             }
+        }
+        /// <summary>
+        /// 尝试清空当前二维表中的所有信息。
+        /// </summary>
+        /// <returns></returns>
+        public bool Clear()
+        {
+            int clearFlag = 0;
+            int rows = Size.rows;
+            int cols = Size.cols;
+            for (int i = 0; i < Size.rows; i++)
+            {
+                bool isCleanCompleted = containers[i].Clear();
+                if (!isCleanCompleted) clearFlag++;
+            }
+            Size = (rows, cols);
+            return clearFlag == 0;
         }
         /// <summary>
         /// 检查指定的元素是否为NULL。
