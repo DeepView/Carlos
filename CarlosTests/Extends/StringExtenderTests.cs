@@ -29,7 +29,7 @@ namespace Carlos.Extends.Tests
             Console.WriteLine(isEquals);
         }
         [TestMethod("Convert to ASCII Code Test")]
-        public unsafe void ToCodeTest()
+        public void ToCodeTest()
         {
             int[] ascii = "12345".ToCode().ToArray();
             for (int i = 0; i < ascii.Length; i++)

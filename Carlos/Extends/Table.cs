@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 namespace Carlos.Extends
 {
@@ -6,17 +7,21 @@ namespace Carlos.Extends
     /// 一个高性能的二维表。
     /// </summary>
     /// <typeparam name="T">需要装填的数据的类型。</typeparam>
-    public class Table<T>: IDisposable
+    public class Table<T> : IDisposable
     {
         private T[] dataContainer;
         private bool disposedValue;
+        private CancellationTokenSource cancellationSource;
+        private ParallelOptions parallelOptions;
+        private delegate void LoopBody(ref Table<T> table, int index);
         /// <summary>
         /// 构造函数，创建一个默认尺寸（8x8）的二维表。
         /// </summary>
         public Table()
         {
-            FillContainerSize(8, 8);
+            SetContainerSize(8, 8);
             dataContainer = new T[64];
+            InitParallelOptions();
         }
         /// <summary>
         /// 构造函数，创建一个指定行数和列数的二维表。
@@ -30,8 +35,9 @@ namespace Carlos.Extends
                 throw new ArgumentOutOfRangeException("Size must greater than zero.");
             else
             {
-                FillContainerSize(rows, cols);
+                SetContainerSize(rows, cols);
                 dataContainer = new T[Rows * Cols];
+                InitParallelOptions();
             }
         }
         /// <summary>
@@ -108,7 +114,7 @@ namespace Carlos.Extends
             else
             {
                 T[] dataCache = dataContainer;
-                FillContainerSize(rows, cols);
+                SetContainerSize(rows, cols);
                 dataContainer = new T[Rows * Cols];
                 Parallel.For(0, dataContainer.Length, i => dataContainer[i] = dataCache[i]);
             }
@@ -118,22 +124,75 @@ namespace Carlos.Extends
         /// </summary>
         public void Clear() => dataContainer = new T[Rows * Cols];
         /// <summary>
-        /// 赋予Rows和Cols属性新的值。
-        /// </summary>
-        /// <param name="rows">Rows值。</param>
-        /// <param name="cols">Cols值。</param>
-        private void FillContainerSize(int rows, int cols)
-        {
-            Rows = rows;
-            Cols = cols;
-        }
-        /// <summary>
         /// 获取指定行和指定列所对应单元格所在的索引。
         /// </summary>
         /// <param name="row">该单元格所在的行。</param>
         /// <param name="col">该单元格所在的列。</param>
         /// <returns>该操作将会返回一个Int32数据类型的值，表示这个单元所对应的索引。</returns>
-        private int GetIndex(int row, int col) => (row - 1) * col + (col - 1);
+        public int GetIndex(int row, int col) => (row - 1) * Cols + (col - 1);
+        /// <summary>
+        /// 获取指定索引所对应单元格所在的行列位置。
+        /// </summary>
+        /// <param name="index">该单元格所对应的索引。</param>
+        /// <returns>该操作将会返回一个元组数据，该数据包含了指定单元格的行列位置信息。</returns>
+        public (int row, int col) GetPosition(int index)
+        {
+            int position1d = index + 1;
+            return (position1d / Cols + 1, position1d % Cols);
+        }
+        /// <summary>
+        /// 获取当前实例的一维数组表达形式。
+        /// </summary>
+        /// <returns>该操作会返回一个一维数组，该数组包含了当前实例所表示的表格中的所有数据。</returns>
+        public T[] ToArray() => dataContainer;
+        /// <summary>
+        /// 获取该实例装填的数据的数据类型。
+        /// </summary>
+        /// <returns>该操作将会返回当前实例装填的数据的数据类型。</returns>
+        public Type GetInsideType() => typeof(T);
+        /// <summary>
+        /// 克隆一个深层副本。
+        /// </summary>
+        /// <returns>该操作将会返回一个Table&lt;T&gt;实例。</returns>
+        public Table<T> Clone()
+        {
+            Table<T> copy = new Table<T>(Rows, Cols);
+            bool isRef = GetInsideType().IsByRef;
+            int psForkCondition = 0x00002000;
+            LoopBody loop = (ref Table<T> table, int index) =>
+            {
+                (int row, int col) = GetPosition(index);
+                table[row, col] = this[row, col];
+            };
+            if (!isRef) psForkCondition = 0x00040000;
+            if (Length >= psForkCondition)
+                Parallel.For(0, Length, parallelOptions, i => loop(ref copy, i));
+            else
+                for (int i = 0; i < Length; i++) loop(ref copy, i);
+            return copy;
+        }
+        /// <summary>
+        /// 赋予Rows和Cols属性新的值。
+        /// </summary>
+        /// <param name="rows">Rows值。</param>
+        /// <param name="cols">Cols值。</param>
+        private void SetContainerSize(int rows, int cols)
+        {
+            Rows = rows;
+            Cols = cols;
+        }
+        /// <summary>
+        /// 初始化当前实例所需要的并行选项。
+        /// </summary>
+        private void InitParallelOptions()
+        {
+            cancellationSource = new CancellationTokenSource();
+            parallelOptions = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+                CancellationToken = cancellationSource.Token
+            };
+        }
         /// <summary>
         /// 释放该对象引用的所有内存资源。
         /// </summary>

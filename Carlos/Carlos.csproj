@@ -4,12 +4,12 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Version></Version>
     <Authors>Li Huaxiang</Authors>
-    <Copyright>© 2023 Li Huaxiang and contributors</Copyright>
+    <Copyright>© 2024 $(Authors) and contributors</Copyright>
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2401.40</AssemblyVersion>
-    <FileVersion>1.0.2401.40</FileVersion>
+    <AssemblyVersion>1.0.2406.42</AssemblyVersion>
+    <FileVersion>1.0.2406.42</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C #, VB and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
