@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 namespace Carlos.Extends
@@ -22,7 +23,9 @@ namespace Carlos.Extends
             foreach (var item in typeof(TOut).GetProperties())
             {
                 if (!item.CanWrite) continue;
-                MemberExpression property = Expression.Property(defaultParamExpr, typeof(TIn).GetProperty(item.Name));
+                PropertyInfo propertyInfo = typeof(TIn).GetProperty(item.Name) 
+                    ?? throw new ArgumentException($"Property '{item.Name}' not found in type '{typeof(TIn).Name}'");
+                MemberExpression property = Expression.Property(defaultParamExpr, propertyInfo);
                 MemberBinding propertyBinding = Expression.Bind(item, property);
                 memberBindingList.AddRange(new MemberBinding[] { propertyBinding });
             }

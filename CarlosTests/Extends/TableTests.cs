@@ -33,16 +33,16 @@ namespace Carlos.Extends.Tests
             Console.WriteLine($"v={t[1, 1]}");
             Console.WriteLine($"v={c[1, 1]}");
         }
-        //[TestMethod()]
-        //public void TableCloneFastTest()
-        //{
-        //    Table<int> t = new(1024, 1024);
-        //    Table<int> c = (Table<int>)t.CloneFast();
-        //    Console.WriteLine($"c.Length={c.Length}");
-        //    t[1, 1] = 32768;
-        //    Console.WriteLine($"v={t[1, 1]}");
-        //    Console.WriteLine($"v={c[1, 1]}");
-        //}
+        [TestMethod()]
+        public void TableCloneFastTest()
+        {
+            Table<int> t = new(1024, 1024);
+            Table<int> c = TransExpression<Table<int>, Table<int>>.Trans(t);
+            Console.WriteLine($"c.Length={c.Length}");
+            t[1, 1] = 32768;
+            Console.WriteLine($"v={t[1, 1]}");
+            Console.WriteLine($"v={c[1, 1]}");
+        }
         [TestMethod()]
         public void GetRowTest()
         {
