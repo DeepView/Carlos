@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/_site/public
+/_site
+/docs
+/docfx.json
+/index.md
+/toc.yml
