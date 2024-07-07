@@ -240,7 +240,7 @@ namespace Carlos.Devices
             return SetDeviceGammaRamp(hdc, gArray);
         }
         /// <summary>
-        /// 重置当前显示设备的亮度，该操作是基于ChangeBrightnessWithGamma方法实现的。
+        /// 重置当前显示设备的亮度，该操作是基于SetBrightnessWithGamma方法实现的。
         /// </summary>
         public static void ResetBrightnessWithGamma() => SetBrightnessWithGamma(SYSTEM_DEFAULT_BRIGHTNESS_WITH_GAMMA);
         /// <summary>

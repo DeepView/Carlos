@@ -1,4 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 namespace Carlos.Extends
@@ -7,13 +11,13 @@ namespace Carlos.Extends
     /// 一个高性能的二维表。
     /// </summary>
     /// <typeparam name="T">需要装填的数据的类型。</typeparam>
-    public class Table<T> : IDisposable
+    public class Table<T> : ICloneable, IDisposable
     {
         private T[] dataContainer;
         private bool disposedValue;
         private CancellationTokenSource cancellationSource;
         private ParallelOptions parallelOptions;
-        private delegate void LoopBody(ref Table<T> table, int index);
+        private delegate void CloneFuncLoopBody(ref Table<T> table, int index);
         /// <summary>
         /// 构造函数，创建一个默认尺寸（8x8）的二维表。
         /// </summary>
@@ -66,34 +70,34 @@ namespace Carlos.Extends
         /// <summary>
         /// 获取指定的行。
         /// </summary>
-        /// <param name="row">指定行的行数。</param>
+        /// <param name="row">指定行的行数，请注意，行数并非从0开始计算。</param>
         /// <returns>该操作会返回指定行的全部内容，并以数组的方式呈现。</returns>
         /// <exception cref="ArgumentOutOfRangeException">当指定的行数超出范围时，则将会抛出这个异常。</exception>
         public T[] GetRow(int row)
         {
             if (row > Rows)
-                throw new ArgumentOutOfRangeException(nameof(row), "Index out of range");
+                throw new ArgumentOutOfRangeException(nameof(row), "Index out of range.");
             else
             {
-                T[] data = dataContainer[GetIndex(row, 1)..GetIndex(row, Cols)];
+                T[] data = dataContainer[GetIndex(row, 1)..(GetIndex(row, Cols) + 1)];
                 return data;
             }
         }
         /// <summary>
         /// 获取指定的列。
         /// </summary>
-        /// <param name="col">指定列的列数。</param>
+        /// <param name="col">指定列的列数，请注意，列数并非从0开始计算。</param>
         /// <returns>该操作会返回指定列的全部内容，并以数组的方式呈现。</returns>
         /// <exception cref="ArgumentOutOfRangeException">当指定的列数超出范围时，则将会抛出这个异常。</exception>
         public T[] GetCol(int col)
         {
             if (col > Cols)
-                throw new ArgumentOutOfRangeException(nameof(col), "Index out of range");
+                throw new ArgumentOutOfRangeException(nameof(col), "Index out of range.");
             else
             {
                 T[] data = new T[Rows];
                 int index = 0;
-                for (int i = col; i < Length; i += Cols)
+                for (int i = col - 1; i < Length; i += Cols)
                 {
                     data[index] = dataContainer[i];
                     index++;
@@ -126,8 +130,8 @@ namespace Carlos.Extends
         /// <summary>
         /// 获取指定行和指定列所对应单元格所在的索引。
         /// </summary>
-        /// <param name="row">该单元格所在的行。</param>
-        /// <param name="col">该单元格所在的列。</param>
+        /// <param name="row">该单元格所在的行，请注意，行数并非从0开始计算。</param>
+        /// <param name="col">该单元格所在的列，请注意，该参数的性质与参数row一样，即列数并非从0开始计算。</param>
         /// <returns>该操作将会返回一个Int32数据类型的值，表示这个单元所对应的索引。</returns>
         public int GetIndex(int row, int col) => (row - 1) * Cols + (col - 1);
         /// <summary>
@@ -146,20 +150,56 @@ namespace Carlos.Extends
         /// <returns>该操作会返回一个一维数组，该数组包含了当前实例所表示的表格中的所有数据。</returns>
         public T[] ToArray() => dataContainer;
         /// <summary>
+        /// 获取当前实例的二维数组表达形式。
+        /// </summary>
+        /// <returns>该操作会返回一个二维数组，该数组包含了当前实例所表示的表格中的所有数据。</returns>
+        /// <exception cref="IndexOutOfRangeException">当转换时发生索引超限时，则将会抛出这个异常，一般情况下，这个异常不会发生。</exception>
+        public T[,] ToArray2D()
+        {
+            T[,] array2d = new T[Rows, Cols];
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    int index = i * Cols + j;
+                    if (index < Length) array2d[i, j] = dataContainer[index];
+                    else throw new IndexOutOfRangeException("Index out of range.");
+                }
+            }
+            return array2d;
+        }
+        /// <summary>
+        /// 获取当前实例的交错数组表达形式。
+        /// </summary>
+        /// <returns>该操作会返回一个交错数组，该数组包含了当前实例所表示的表格中的所有数据。</returns>
+        public T[][] ToJaggedArray()
+        {
+            T[][] jahhedArray = new T[Rows][];
+            for (int i = 0; i < Rows; i++)
+                jahhedArray[i] = GetRow(i + 1);
+            return jahhedArray;
+        }
+        /// <summary>
         /// 获取该实例装填的数据的数据类型。
         /// </summary>
         /// <returns>该操作将会返回当前实例装填的数据的数据类型。</returns>
         public Type GetInsideType() => typeof(T);
         /// <summary>
-        /// 克隆一个深层副本。
+        /// 创建一个深层克隆副本。
         /// </summary>
-        /// <returns>该操作将会返回一个Table&lt;T&gt;实例。</returns>
-        public Table<T> Clone()
+        /// <returns>该操作将会返回一个深克隆的Table&lt;T&gt;实例。</returns>
+        /// <remarks>访问这个方法时不需要担心性能开销，该方法使用了多重条件判断来确保当前方法尽可能的在最短的时间内完成。</remarks>
+        public object Clone()
         {
-            Table<T> copy = new Table<T>(Rows, Cols);
+            int rows = Rows, cols = Cols;
+            Table<T> copy = new Table<T>(Rows, Cols)
+            {
+                Rows = rows,
+                Cols = cols
+            };
             bool isRef = GetInsideType().IsByRef;
             int psForkCondition = 0x00002000;
-            LoopBody loop = (ref Table<T> table, int index) =>
+            CloneFuncLoopBody loop = (ref Table<T> table, int index) =>
             {
                 (int row, int col) = GetPosition(index);
                 table[row, col] = this[row, col];
@@ -171,6 +211,11 @@ namespace Carlos.Extends
                 for (int i = 0; i < Length; i++) loop(ref copy, i);
             return copy;
         }
+        /// <summary>
+        /// 创建一个引用类型的克隆副本，即浅克隆副本。
+        /// </summary>
+        /// <returns>该操作将会返回一个浅克隆的Table&lt;T&gt;实例。/returns>
+        public object CloneRef() => MemberwiseClone();
         /// <summary>
         /// 赋予Rows和Cols属性新的值。
         /// </summary>
