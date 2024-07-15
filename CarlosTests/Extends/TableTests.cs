@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Diagnostics;
 
 namespace Carlos.Extends.Tests
 {
@@ -15,10 +16,10 @@ namespace Carlos.Extends.Tests
         [TestMethod()]
         public void TableTest()
         {
-            Table<int> table = new(10, 10);
-            for (int i = 0; i < table.Length; i++)
+            Table<long> table = new(10, 10);
+            for (long i = 0; i < table.Length; i++)
             {
-                (int row, int col) = table.GetPosition(i);
+                (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
                 Console.WriteLine($"index {i}: {table[row, col]}");
             }
@@ -34,25 +35,15 @@ namespace Carlos.Extends.Tests
             Console.WriteLine($"v={c[1, 1]}");
         }
         [TestMethod()]
-        public void TableCloneFastTest()
-        {
-            Table<int> t = new(1024, 1024);
-            Table<int> c = TransExpression<Table<int>, Table<int>>.Trans(t);
-            Console.WriteLine($"c.Length={c.Length}");
-            t[1, 1] = 32768;
-            Console.WriteLine($"v={t[1, 1]}");
-            Console.WriteLine($"v={c[1, 1]}");
-        }
-        [TestMethod()]
         public void GetRowTest()
         {
             Table<int> table = new(7, 5);
             for (int i = 0; i < table.Length; i++)
             {
-                (int row, int col) = table.GetPosition(i);
+                (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
             }
-            int[] rowElements = table.GetRow(1);
+            int[] rowElements = table.GetRow(3);
             Console.WriteLine($"row_count={table.Rows}, col_count={table.Cols}\n");
             for (int i = 0; i < rowElements.Length; i++) Console.WriteLine($"index={i}, data={rowElements[i]}");
         }
@@ -62,7 +53,7 @@ namespace Carlos.Extends.Tests
             Table<int> table = new(7, 5);
             for (int i = 0; i < table.Length; i++)
             {
-                (int row, int col) = table.GetPosition(i);
+                (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
             }
             int[] colElements = table.GetCol(1);
@@ -75,12 +66,12 @@ namespace Carlos.Extends.Tests
             Table<int> table = new(7, 5);
             for (int i = 0; i < table.Length; i++)
             {
-                (int row, int col) = table.GetPosition(i);
+                (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
             }
             int[,] a2d = table.ToArray2D();
-            int rows = table.Rows;
-            int cols = table.Cols;
+            long rows = table.Rows;
+            long cols = table.Cols;
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < cols; j++)
@@ -97,12 +88,12 @@ namespace Carlos.Extends.Tests
             Table<int> table = new(7, 5);
             for (int i = 0; i < table.Length; i++)
             {
-                (int row, int col) = table.GetPosition(i);
+                (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
             }
             int[][] ja = table.ToJaggedArray();
-            int rows = table.Rows;
-            int cols = table.Cols;
+            long rows = table.Rows;
+            long cols = table.Cols;
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < cols; j++)
@@ -112,7 +103,88 @@ namespace Carlos.Extends.Tests
                 Console.WriteLine($"\t// row_data_count={cols}");
             }
             Console.WriteLine("\nto_jagged_array_completed.");
-
+        }
+        [TestMethod()]
+        public void NormalSum()
+        {
+            Table<long> table = new(1000, 1000);
+            for (int i = 0; i < table.Length; i++)
+            {
+                (long row, long col) = table.GetPosition(i);
+                table[row, col] = i;
+            }
+            long res = table.Sum();
+            Console.WriteLine($"table_length={table.Length}");
+            Console.WriteLine($"table_sum_result={res}");
+        }
+        [TestMethod()]
+        public void ParallelSum()
+        {
+            Table<long> table = new(1000, 1000);
+            for (int i = 0; i < table.Length; i++)
+            {
+                (long row, long col) = table.GetPosition(i);
+                table[row, col] = i;
+            }
+            long res = table.AsParallel().Sum();
+            //Parallel.For(0, table.Length, i =>
+            //{
+            //    (long row, long col) = table.GetPosition(i);
+            //    res += table[row, col];
+            //});
+            Console.WriteLine($"table_length={table.Length}");
+            Console.WriteLine($"table_sum_result={res}");
+        }
+        [TestMethod()]
+        public void CopyTest()
+        {
+            int size = 100000000; // 示例数组大小  
+            int[] oldArray = new int[size];
+            // 假设这里对oldArray进行了初始化
+            // 使用Array.Copy复制数组  
+            int[] newArray1 = new int[size];
+            Stopwatch sw1 = Stopwatch.StartNew();
+            Array.Copy(oldArray, newArray1, size);
+            sw1.Stop();
+            Console.WriteLine($"Array.Copy 时间: {sw1.ElapsedMilliseconds} ms");
+            // 使用for循环复制数组  
+            int[] newArray2 = new int[size];
+            Stopwatch sw2 = Stopwatch.StartNew();
+            for (int i = 0; i < size; i++)
+            {
+                newArray2[i] = oldArray[i];
+            }
+            sw2.Stop();
+            Console.WriteLine($"for循环 时间: {sw2.ElapsedMilliseconds} ms");
+            // 使用Parallel.For循环复制数组  
+            int[] newArray3 = new int[size];
+            Stopwatch sw3 = Stopwatch.StartNew();
+            Parallel.For(0, size, i => newArray3[i] = oldArray[i]);
+            sw3.Stop();
+            Console.WriteLine($"Parallel.For循环 时间: {sw3.ElapsedMilliseconds} ms");
+        }
+        [TestMethod()]
+        public void ResizeTest()
+        {
+            Table<long> table = new(16384, 16384);
+            for (long i = 0; i < table.Length; i++)
+            {
+                (long row, long col) = table.GetPosition(i);
+                table[row, col] = i;
+            }
+            Console.WriteLine($"Length={table.Length}");
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            table.Resize(32768, 32768);
+            stopwatch.Stop();
+            Console.WriteLine($"Length after resize={table.Length}");
+            Console.WriteLine($"Elapsed Time = {stopwatch.ElapsedMilliseconds} ms");
+        }
+        [TestMethod()]
+        public void ClearTest()
+        {
+            Table<string> table = new(5, 3, "Love");
+            table.Clear();
+            Console.WriteLine($"clear_completed.\n\n{table}");
         }
     }
 }

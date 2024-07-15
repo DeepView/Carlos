@@ -50,22 +50,26 @@ namespace Carlos.Extends
         /// <param name="length">指定的裁剪长度。</param>
         /// <returns>该操作将会返回一个字符串，这个字符串是通过裁剪而得到的。</returns>
         /// <remarks>该方法和String.Substring(int, int)方法等效，但是在存在大量字符串裁剪的特殊环境下，这个方法的时间开销更低。虽说在单一的字符串裁剪任务中，这两个方法的时间开销差距非常小，但是在大多数情况下，我们还是建议您优先考虑String.Substring(int, int)。</remarks>
-        public static string Cut(this string source, int index, int length) => string.Create(length, source, (dst, source) =>
-        {
-            var src = source.AsSpan();
-            var cutStr = src.Slice(index, length);
-            for (int i = 0; i < length; i++) dst[i] = cutStr[i];
-        });
+        public static string Cut(this string source, int index, int length) => string.Create(
+            length,
+            source,
+            (dst, source) =>
+            {
+                var src = source.AsSpan();
+                var cutStr = src.Slice(index, length);
+                for (int i = 0; i < length; i++) 
+                    dst[i] = cutStr[i];
+            });
         /// <summary>
         /// 用字符指针的方式比较两个字符串是否相同。
         /// </summary>
         /// <param name="left">第一个字符串。</param>
         /// <param name="right">第二个字符串。</param>
         /// <returns>该操作将会返回一个Boolean数据，该数据说明了两个字符串是否相同，如果相同则返回true，否则返回false。</returns>
-        /// <remarks>该方法由于使用了指针这一特性，所以包含了一部分相对于CLR环境而言不安全的代码。另外，如果需要比较中文或者其他非英语和阿拉伯数字字符的字符串，则不建议使用该方法，因为该方法中文等字符串可能会造成额外的资源和时间开销。</remarks>
+        /// <remarks>该方法由于使用了指针这一特性，所以包含了一部分相对于CLR环境而言不安全的代码。另外，如果需要比较中文或者其他非英语和阿拉伯数字字符的字符串，则不建议使用该方法，因为该方法操作非ASCII标准的字符串可能会造成额外的资源和时间开销。</remarks>
         public static bool IsEquals(this string left, string right)
         {
-            bool bRet = true;
+            bool isEquals = true;
             int nC1 = NUM_ZERO, nC2 = NUM_ZERO, nLen = NUM_ZERO;
             int i = NUM_ZERO;
             if (left.Length != right.Length) return false;
@@ -87,7 +91,7 @@ namespace Carlos.Extends
                     {
                         if (*(long*)psTemp1 != (*(long*)psTemp2))
                         {
-                            bRet = false;
+                            isEquals = false;
                             break;
                         }
                         i += 4;
@@ -96,7 +100,7 @@ namespace Carlos.Extends
                     }
                 }
             }
-            return bRet;
+            return isEquals;
         }
         /// <summary>
         /// 使用位运算比较两个字符串是否相同。
@@ -104,18 +108,18 @@ namespace Carlos.Extends
         /// <param name="left">第一个字符串。</param>
         /// <param name="right">第二个字符串。</param>
         /// <returns>该操作将会返回一个Boolean数据，该数据说明了两个字符串是否相同，如果相同则返回true，否则返回false。</returns>
-        public static bool IsEqualsXor(this string left,string right)
+        public static bool IsEqualsXor(this string left, string right)
         {
             bool equal = true;
-            char[] leftChars = left.ToCharArray();
-            char[] rightChars = right.ToCharArray();
-            if( leftChars.Length != rightChars.Length ) equal = false;
+            var leftChars = left.AsSpan();
+            var rightChars = right.AsSpan();
+            if (leftChars.Length != rightChars.Length) equal = false;
             else
             {
-                for(int i = 0;i< leftChars.Length; i++)
+                for (int i = 0; i < leftChars.Length; i++)
                 {
                     int xor = leftChars[i] ^ rightChars[i];
-                    if( xor != 0 )
+                    if (xor != 0)
                     {
                         equal = false;
                         break;

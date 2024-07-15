@@ -32,5 +32,11 @@ namespace Carlos.Environments.Tests
         {
             Console.WriteLine(ComputerInfo.OS());
         }
+
+        [TestMethod()]
+        public void ProcessorCountTest()
+        {
+            Console.WriteLine(ComputerInfo.ProcessorCount());
+        }
     }
 }

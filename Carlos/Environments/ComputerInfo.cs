@@ -37,5 +37,10 @@ namespace Carlos.Environments
         /// </summary>
         /// <returns>该操作将会返回一个字符串，这个字符串表示当前操作系统或者运行环境的平台，比如说X86，Arm64。</returns>
         public static string Architecture() => RuntimeInformation.OSArchitecture.ToString().ToLower();
+        /// <summary>
+        /// 获取当前硬件平台的逻辑处理单元数量。
+        /// </summary>
+        /// <returns>该操作将会返回一个整型数据，用于表示当前平台的逻辑处理单元的数量。</returns>
+        public static int ProcessorCount() => Environment.ProcessorCount;
     }
 }

@@ -9,3 +9,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0059:不需要赋值", Justification = "<挂起>", Scope = "member", Target = "~M:Carlos.Extends.FixedLengthQueue`1.Add(`0)~System.Boolean")]
 [assembly: SuppressMessage("Style", "IDE0059:不需要赋值", Justification = "<挂起>", Scope = "member", Target = "~M:Carlos.Extends.FixedLengthQueue`1.Reverse")]
 [assembly: SuppressMessage("Style", "IDE0039:使用本地函数", Justification = "<挂起>", Scope = "member", Target = "~M:Carlos.Extends.Table`1.Clone~System.Object")]
+[assembly: SuppressMessage("Style", "IDE0039:使用本地函数", Justification = "<挂起>", Scope = "member", Target = "~M:Carlos.Extends.Table`1.Resize(System.Int64,System.Int64)")]
