@@ -79,7 +79,7 @@ namespace Carlos.Devices
         /// <para>MOUSEEVENTF_XUP：0x0100，这表示鼠标侧边X按键松开。</para>
         /// <para>MOUSEEVENTF_HWHEEL：0x1000，这表示鼠标中键被倾斜（MSDN原文：The wheel button is tilted）。</para>
         /// </param>
-        /// <param name="data">如果flags为MOUSEEVENTF_WHEEL，则data指定鼠标轮移动的数量。正值表明鼠标轮向前转动，即远离用户的方向；负值表明鼠标轮向后转动，即朝向用户。一个轮击定义为WHEEL_DELTA，即120。如果dwFlagsS不是MOUSEEVENTF_WHEEL，则data应为零。</param>
+        /// <param name="data">如果flags为MOUSEEVENTF_WHEEL，则data指定鼠标轮移动的数量。正值表明鼠标轮向前转动，即远离用户的方向；负值表明鼠标轮向后转动，即朝向用户。一个轮击定义为WHEEL_DELTA，即120。如果flags不是MOUSEEVENTF_WHEEL，则data应为零。</param>
         /// <param name="extraInfo">指定与鼠标事件相关的附加32位值。应用程序调用函数GetMessageExtraInfo来获得此附加信息。</param>
         /// <param name="exceptionInfo">该操作如果产生了Win32Api异常，那么该参数则用来获取描述这个异常的文本信息，如果操作成功执行，会返回“操作已成功”之类的信息。</param>
         /// <returns>如果该操作已经成功达到了用户的目标，则会返回true，否则返回false。</returns>
@@ -116,8 +116,8 @@ namespace Carlos.Devices
         /// <returns>该操作会返回一个bool类型，用于表示这个操作是否成功。</returns>
         public static bool Relieve()
         {
-            int screenWidth = Screen.GetResolving().Width;
-            int screenHeight =  Screen.GetResolving().Height;
+            int screenWidth = Screen.GetResolution().Width;
+            int screenHeight =  Screen.GetResolution().Height;
             Rectangle clrRect = new Rectangle(0, 0, screenWidth, screenHeight);
             Win32Rectangle rect = clrRect;
             return ClipCursor(ref rect);

@@ -2,6 +2,7 @@
 using System.Drawing;
 using Carlos.Enumerations;
 using System.Runtime.InteropServices;
+using System.Drawing.Imaging;
 namespace Carlos.Devices
 {
     /// <summary>
@@ -140,7 +141,7 @@ namespace Carlos.Devices
         /// <param name="width">指定分辨率的宽度。</param>
         /// <param name="height">指定分辨率的高度。</param>
         /// <returns>该操作会返回一个Win32Api错误代码，如果这个错误代码为非0，则表示操作失败，否则表示操作成功。</returns>
-        public static bool SetResolving(int width, int height) => SetResolving(width, height, GetRefreshRate(), GetBitsPerPixel(), out _);
+        public static bool SetResolving(int width, int height) => SetResolution(width, height, GetRefreshRate(), GetBitsPerPixel(), out _);
         /// <summary>
         /// 设置当前图形监视器的分辨率，并重新指定屏幕刷新率和像素色彩深度。
         /// </summary>
@@ -150,7 +151,7 @@ namespace Carlos.Devices
         /// <param name="bitsPerPixel">指定的像素色彩位数。</param>
         /// <param name="win32ErrorCode">一个Win32Api错误代码，如果这个错误代码为非0，则表示操作失败，否则表示操作成功。</param>
         /// <returns>该操作会返回一个Boolean类型，如果该返回值为true则表示操作成功，否则表示操作失败。如果操作失败，可以访问<see cref="Win32ApiHelper.FormatErrorCode(long)">FormatErrorCode</see>方法来获取更多信息。</returns>
-        public static bool SetResolving(int width, int height, int refreshRate, int bitsPerPixel, out long win32ErrorCode)
+        public static bool SetResolution(int width, int height, int refreshRate, int bitsPerPixel, out long win32ErrorCode)
         {
             DevicesMode devM = new DevicesMode
             {
@@ -168,7 +169,7 @@ namespace Carlos.Devices
         /// 获取当前显示器的分辨率。
         /// </summary>
         /// <returns>该操作将会返回一个Size类型的数据，其中将会包含显示器分辨率的值Width和Height。</returns>
-        public static Size GetResolving()
+        public static Size GetResolution()
         {
             IntPtr hdc = Win32ApiHelper.GetDeviceContext(IntPtr.Zero);
             int width = GetDeviceCapabilities(hdc, DeviceCapsIndex.HorizontalPixel);
@@ -257,6 +258,42 @@ namespace Carlos.Devices
             byte g = ((byte)(((short)(colorref)) >> 8));
             byte b = ((byte)((colorref) >> 16));
             return Color.FromArgb(r, g, b);
+        }
+        /// <summary>
+        /// 截取屏幕快照（全屏截取）。
+        /// </summary>
+        /// <returns>该操作将会返回一个Bitmap对象，用于将截取的屏幕快照存储到该对象之中，从而方便后续处理。</returns>
+        public static Bitmap Capture()
+        {
+            Size res = GetResolution();
+            Rectangle rectangle = new Rectangle
+            {
+                Location = new Point(0, 0),
+                Width = res.Width,
+                Height = res.Height
+            };
+            return Capture(rectangle);
+        }
+        /// <summary>
+        /// 截取指定区域的屏幕快照（局部截取）。
+        /// </summary>
+        /// <param name="captureArea">需要被截取快照的屏幕区域。</param>
+        /// <returns>该操作将会返回一个Bitmap对象，用于将截取的屏幕快照存储到该对象之中，从而方便后续处理。</returns>
+        public static Bitmap Capture(Rectangle captureArea)
+        {
+            Bitmap screenshot = new Bitmap(
+                captureArea.Width,
+                captureArea.Height,
+                PixelFormat.Format32bppArgb
+            );
+            Graphics g = Graphics.FromImage(screenshot);
+            g.CopyFromScreen(
+                captureArea.Location,
+                Point.Empty,
+                captureArea.Size,
+                CopyPixelOperation.SourceCopy
+            );
+            return screenshot;
         }
     }
 }

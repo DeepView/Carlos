@@ -29,13 +29,6 @@ namespace Carlos.Application
         /// <returns>当操作成功是返回true，否则返回false。</returns>
         public delegate bool WindowEnumProc(IntPtr handle, uint lParam);
         /// <summary>
-        /// 获取调用线程最近的错误代码值。
-        /// </summary>
-        /// <returns>Int32</returns>
-        /// <remarks>该函数返回调用线程最近的错误代码值，错误代码以单线程为基础来维护的，多线程不重写各自的错误代码值。</remarks>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        private static extern int GetLastError();
-        /// <summary>
         /// 设定线程的优先级。
         /// </summary>
         /// <param name="thread">需要被调整优先级的线程的句柄。</param>
@@ -120,10 +113,7 @@ namespace Carlos.Application
         /// </summary>
         /// <param name="executeFileUrl">需要创建进程的一个Windows可执行文件。</param>
         /// <returns>该方法会返回这个进程的System.Diagnostics.Process实例。</returns>
-        public static Process CreateProcess(string executeFileUrl)
-        {
-            return CreateProcess(executeFileUrl, ProcessPriority.RealTime);
-        }
+        public static Process CreateProcess(string executeFileUrl) => CreateProcess(executeFileUrl, ProcessPriority.RealTime);
         /// <summary>
         /// 创建一个指定文件地址的进程，同时会允许指定一个进程的优先级。
         /// </summary>
@@ -172,10 +162,21 @@ namespace Carlos.Application
         /// <param name="password">一个SecureString实例，它包含启动进程时要使用的密码。</param>
         /// <param name="domian">启动进程时要使用的域。</param>
         /// <returns>该方法会返回这个进程的System.Diagnostics.Process实例。</returns>
-        public static Process CreateProcess(string executeFileUrl, string arguments, string userName, SecureString password, string domian)
-        {
-            return CreateProcess(executeFileUrl, arguments, userName, password, domian, ProcessPriority.RealTime);
-        }
+        public static Process CreateProcess(
+            string executeFileUrl,
+            string arguments,
+            string userName,
+            SecureString password,
+            string domian
+            ) =>
+            CreateProcess(
+                executeFileUrl,
+                arguments,
+                userName,
+                password,
+                domian,
+                ProcessPriority.RealTime
+            );
         /// <summary>
         /// 创建一个拥有指定优先级的进程，在创建这个进程会指定一些命令行参数，以及权限和域。
         /// </summary>
@@ -338,13 +339,12 @@ namespace Carlos.Application
         public static bool UpdateProcessPrivileges(string processName, string systemName, int operationType, TokenPrivileges privileges)
         {
             IntPtr hwnd_t = IntPtr.Zero;
-            bool rv;
             PrivilegeGetter.LookupPrivilegeValue(systemName, processName, ref privileges.Privileges.ParticularLuid);
             PrivilegeGetter.OpenProcessToken(PrivilegeGetter.GetCurrentProcess(), operationType, hwnd_t);
             PrivilegeGetter.AdjustTokenPrivileges(hwnd_t, false, ref privileges, 100000, new TokenPrivileges(), 0);
-            rv = GetLastError() == ERROR_SUCCESS;
+            bool isSuccessful = Win32ApiHelper.GetLastWin32ApiError() == ERROR_SUCCESS;
             PrivilegeGetter.CloseHandle(hwnd_t);
-            return rv;
+            return isSuccessful;
         }
         /// <summary>
         /// 根据窗口标题来获取进程的ID。
@@ -444,7 +444,9 @@ namespace Carlos.Application
         /// </summary>
         /// <param name="location">指定的屏幕位置。</param>
         /// <returns>在没有抛出任何异常的情况下，该操作将会返回一个Process实例。</returns>
-        public static Process GetProcessByScreenLocation(Point location) => GetProcessByHandle(Win32ApiHelper.GetWindowHandle(location));
+        public static Process GetProcessByScreenLocation(Point location) => GetProcessByHandle(
+            Win32ApiHelper.GetWindowHandle(location)
+        );
         /// <summary>
         /// 获取当前窗口的句柄。
         /// </summary>
@@ -461,7 +463,7 @@ namespace Carlos.Application
                 else ptrWnd = IntPtr.Zero;
             }
             bool bResult = EnumWindows(new WindowEnumProc(EnumWindowsProc), processId);
-            if (!bResult && Marshal.GetLastWin32Error() == 0)
+            if (!bResult && Win32ApiHelper.GetLastWin32ApiError() == ERROR_SUCCESS)
             {
                 objWnd = mProcessHandleHashTable[processId];
                 if (objWnd != null) ptrWnd = (IntPtr)objWnd;

@@ -6,21 +6,47 @@ using System.Collections;
 using Carlos.Environments;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 namespace Carlos.Extends
 {
     /// <summary>
     /// 一个由一维数组进行描述和定义的高性能二维表。
     /// </summary>
     /// <typeparam name="T">需要装填的数据的类型。</typeparam>
+    /// <remarks>
+    /// 如果需要提高数据筛选操作的效率，推荐先对数据集合进行哈希化预处理，该方法声明如下：
+    /// <code language="cs">
+    /// public void Pretreatment();
+    /// </code>
+    /// 另外，数据集合如果已经产生了变化，则在对数据筛选之前，建议再调用一次该方法。下面是调用该方法的一个简易示例代码：
+    /// <code language="cs">
+    /// public void WhereTest()
+    /// {
+    ///     int paddingVal = 0;
+    ///     Table &lt;int&gt; table = new(2048, 2048);
+    ///     Random rnd = new(78923);
+    ///     Parallel.For(0, table.Rows, i =&gt;
+    ///     {
+    ///         (long row, long col) = table.GetPosition(i);
+    ///         paddingVal = rnd.Next();
+    ///         table[row, col] = paddingVal;
+    ///     });
+    ///     table.Pretreatment();
+    ///     IEnumerable &lt;int&gt; query = table.Where(cell =&gt; cell &lt;= 65535);
+    ///     Console.WriteLine($"query.Length={query.Count()}");
+    /// }
+    /// </code>
+    /// </remarks>
     public class Table<T> : ICloneable, IDisposable, IEnumerable<T>
     {
         private T[] dataContainer;                                                  //需要被操作的数据。
         private bool disposedValue;
+        private Dictionary<T, long> elementToIndexMap;
         private CancellationTokenSource cancellationSource;
         private ParallelOptions parallelOptions;
-        private readonly int processorCount = ComputerInfo.ProcessorCount();
-        private readonly int minimumProcessorCount = 0x0004;
-        private delegate void CloneFuncLoopBody(ref Table<T> table, long index);     //适用于当前实例Clone方法内部循环体的委托。
+        private readonly int processorCount = ComputerInfo.ProcessorCount();        //当前计算机的逻辑处理器数量。
+        private readonly int minimumProcessorCount = 0x0004;                        //用于并行选项的最小逻辑处理器数量。
+        private delegate void CloneFuncLoopBody(ref Table<T> table, long index);    //适用于当前实例Clone方法内部循环体的委托。
         /// <summary>
         /// 构造函数，创建一个默认尺寸（8x8）的二维表。
         /// </summary>
@@ -52,7 +78,7 @@ namespace Carlos.Extends
         /// </summary>
         /// <param name="rows">指定的行数。</param>
         /// <param name="cols">指定的列数。</param>
-        /// <param name="paddingValue">需要填充的数据。</param>
+        /// <param name="paddingValue">需要填充的默认数据，这个数据会被填充到所有的Cell中。</param>
         /// <exception cref="ArgumentOutOfRangeException">如果任意一个参数小于0，则将会抛出这个异常。</exception>
         public Table(long rows, long cols, T paddingValue)
         {
@@ -93,6 +119,10 @@ namespace Carlos.Extends
         /// 获取当前二维表的行列数乘积，即当前二维表的长度。
         /// </summary>
         public long Length => dataContainer.Length;
+        /// <summary>
+        /// 获取当前二维表最后一次删除的元素。
+        /// </summary>
+        public T LastDeletedData { get; private set; }
         /// <summary>
         /// 获取或设置指定单元格的内容。
         /// </summary>
@@ -224,6 +254,71 @@ namespace Carlos.Extends
         /// </summary>
         public void Clear() => dataContainer = new T[Rows * Cols];
         /// <summary>
+        /// 在指定单元格后面插入指定的元素，同时其他元素依次后移，并将表格中最后一个元素存储到LastDeletedData属性中。
+        /// </summary>
+        /// <param name="data">需要被插入的元素。</param>
+        /// <param name="row">指定单元格所在的行。</param>
+        /// <param name="col">指定单元格所在的列。</param>
+        /// <exception cref="InvalidOperationException">如果当前实例长度为0，则将会抛出这个异常。</exception>
+        public void Insert(T data, long row, long col)
+        {
+            if (Length > 0)
+            {
+                LastDeletedData = dataContainer[Length - 1];
+                long start = Length - 1;
+                long index = GetIndex(row, col);
+                for (long i = start; i > index; i--)
+                    dataContainer[i] = dataContainer[i - 1];
+                dataContainer[index] = data;
+            }
+            else throw new InvalidOperationException("Table is not 0-length.");
+        }
+        /// <summary>
+        /// 删除指定单元格中的元素，并将删除的元素存储到LastDeletedData属性中。
+        /// </summary>
+        /// <param name="row">指定单元格所在的行。</param>
+        /// <param name="col">指定单元格所在的列。</param>
+        /// <exception cref="InvalidOperationException">如果当前实例长度为0，则将会抛出这个异常。</exception> 
+        public void Remove(long row, long col)
+        {
+            if (Length > 0)
+            {
+                long index = GetIndex(row, col);
+                LastDeletedData = dataContainer[index];
+                for (long i = index; i < Length - 1; i++)
+                    dataContainer[i] = dataContainer[i + 1];
+            }
+            else throw new InvalidOperationException("Table is not 0-length.");
+        }
+        /// <summary>
+        /// 对当前实例容纳的数据进行哈希化处理。
+        /// </summary>
+        /// <remarks>该方法之所以将可见性设置为public，是为了让用户自行决定合适对数据进行预处理。不过在此建议，当该实例容纳的数据发生变更之后，执行诸如数据查找等方法之前，执行一次这个方法。</remarks>
+        public void Pretreatment()
+        {
+            elementToIndexMap = new Dictionary<T, long>();
+            for (long i = 0; i < Length; i++)
+                elementToIndexMap[dataContainer[i]] = i;
+        }
+
+        /// <summary>
+        /// 确认指定的元素是否存在，在调用该方法之前，建议先调用一次Pretreatment()方法。
+        /// </summary>
+        /// <param name="target">需要确认是否存在的元素。</param>
+        /// <returns>该操作将会返回一个Boolean类型的数据，用于表示参数指定的元素是否存在。</returns>
+        public bool Exists(T target) => elementToIndexMap.TryGetValue(target, out _);
+        /// <summary>
+        /// 确认指定元素在当前实例中第一次出现的位置，在调用该方法之前，建议先调用一次Pretreatment()方法。
+        /// </summary>
+        /// <param name="target">指定需要查找的元素。</param>
+        /// <returns>该操作将会返回一个元组数据，该数据包含了指定元素所在单元格的行列位置信息，如果未查到该元素，这将会返回(-1,-1)的元组。</returns>
+        public (long row, long col) PositionOf(T target)
+        {
+            bool exists = elementToIndexMap.TryGetValue(target, out long index);
+            if (exists) return GetPosition(index);
+            else return (-1, -1);
+        }
+        /// <summary>
         /// 获取指定行和指定列所对应单元格所在的索引。
         /// </summary>
         /// <param name="row">该单元格所在的行，请注意，行数并非从0开始计算。</param>
@@ -241,11 +336,40 @@ namespace Carlos.Extends
             return (position1d / Cols + 1, position1d % Cols);
         }
         /// <summary>
+        /// 查找指定的元素所对应的索引。
+        /// </summary>
+        /// <param name="target">需要查找其索引的元素。</param>
+        /// <returns>如果该操作成功找到指定元素所对应的索引，则将会返回一个确切的索引值，否则会返回-1。</returns>
+        /// <remarks>该方法是利用多线程的方式查找，所以当存在多个相同的元素时，该操作不一定会保证这个元素所对应的索引是唯一的，且也无法保证这个索引是最小的或者最大的。</remarks>
+        public int IndexOf(T target)
+        {
+            int foundIndex = -1;
+            var partitions = Partitioner.Create(0, dataContainer.Length);
+            Parallel.ForEach(partitions, (range, loopState) =>
+            {
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    if (Volatile.Read(ref foundIndex) != -1)
+                    {
+                        loopState.Stop();
+                        return;
+                    }
+                    if (dataContainer[i].Equals(target))
+                    {
+                        Interlocked.CompareExchange(ref foundIndex, i, -1);
+                        loopState.Stop();
+                        return;
+                    }
+                }
+            });
+            return foundIndex;
+        }
+        /// <summary>
         /// 根据谓词过滤值序列。
         /// </summary>
         /// <param name="predicate">测试每个源元素是否满足条件的函数。</param>
         /// <returns>该操作将会返回一个符合过滤条件的数组。</returns>
-        public T[] Where(Func<T, bool> predicate) => (T[])dataContainer.Where(predicate);
+        public IEnumerable<T> Where(Func<T, bool> predicate) => dataContainer.Where(predicate);
         /// <summary>
         /// 获取当前实例的遍历集合的枚举器。
         /// </summary>
@@ -291,11 +415,29 @@ namespace Carlos.Extends
                 jahhedArray[i] = GetRow(i + 1);
             return jahhedArray;
         }
+        public void ToCsvFile(string fileName, char separator = ',')
+        {
+            using var writer = new System.IO.StreamWriter(fileName);
+            for (long i = 1; i <= Rows; i++)
+            {
+                for (long j = 1; j <= Cols; j++)
+                {
+                    writer.Write(this[i, j]);
+                    if (j < Cols) writer.Write(separator);
+                }
+                writer.WriteLine();
+            }
+        }
         /// <summary>
         /// 获取该实例装填的数据的数据类型。
         /// </summary>
         /// <returns>该操作将会返回当前实例装填的数据的数据类型。</returns>
         public Type GetInsideType() => typeof(T);
+        /// <summary>
+        /// 获取该实例装填的数据是否隶属于值类型数据类型。
+        /// </summary>
+        /// <returns>如果当前实例装填的数据隶属于值类型，则返回true，否则返回false。</returns>
+        public bool IsValueTypeWithInside() => GetInsideType().IsValueType;
         /// <summary>
         /// 创建一个深层克隆副本。
         /// </summary>
@@ -332,6 +474,7 @@ namespace Carlos.Extends
         /// 获取当前实例的字符串表达形式。
         /// </summary>
         /// <returns>该操作将会返回一个可读性非常高的字符串，这个字符串包含了该实例的内部元素的数据类型，总行列数，表格长度，以及该实例数据的打印字符串。</returns>
+        /// <remarks>值得注意的是，若当前实例包含的元素数量过多，可能会导致这个方法运行时间延长，因为该方法会将所有的元素进行字符串化，然后进行文本格式化。在这种情形下，该操作会消耗一定的时间开销。</remarks>
         public override string ToString()
         {
             string itstr = GetInsideType().FullName;

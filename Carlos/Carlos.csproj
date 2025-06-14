@@ -4,15 +4,16 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Version>$(FileVersion)</Version>
     <Authors>Li Huaxiang</Authors>
-    <Copyright>© 2024 $(Authors) and contributors</Copyright>
+    <Copyright>© 2025 $(Authors) and contributors</Copyright>
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2407.45</AssemblyVersion>
-    <FileVersion>1.0.2407.45</FileVersion>
+    <AssemblyVersion>1.0.2506.50</AssemblyVersion>
+    <FileVersion>1.0.2506.50</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Description>Carlos Saber is a tool extension library for .NET, applicable to C #, VB, F# and C++/CLI.</Description>
+    <Description>Carlos Saber is a tool extension library for .NET, applicable to C#, VB, F# and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <IncludeSymbols>False</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -29,10 +30,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MachineLearning\**" />
+    <EmbeddedResource Remove="MachineLearning\**" />
+    <None Remove="MachineLearning\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="OpenCL.Net" Version="2.2.9" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>

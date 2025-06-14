@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Diagnostics;
+using System.Collections;
 
 namespace Carlos.Extends.Tests
 {
@@ -107,7 +108,7 @@ namespace Carlos.Extends.Tests
         [TestMethod()]
         public void NormalSum()
         {
-            Table<long> table = new(1000, 1000);
+            Table<long> table = new(40000, 40000);
             for (int i = 0; i < table.Length; i++)
             {
                 (long row, long col) = table.GetPosition(i);
@@ -120,13 +121,14 @@ namespace Carlos.Extends.Tests
         [TestMethod()]
         public void ParallelSum()
         {
-            Table<long> table = new(1000, 1000);
+            Table<long> table = new(40000, 40000);
             for (int i = 0; i < table.Length; i++)
             {
                 (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
             }
             long res = table.AsParallel().Sum();
+            //long res = 0;
             //Parallel.For(0, table.Length, i =>
             //{
             //    (long row, long col) = table.GetPosition(i);
@@ -185,6 +187,50 @@ namespace Carlos.Extends.Tests
             Table<string> table = new(5, 3, "Love");
             table.Clear();
             Console.WriteLine($"clear_completed.\n\n{table}");
+        }
+        [TestMethod()]
+        public void WhereTest()
+        {
+            int paddingVal = 0;
+            Table<int> table = new(2048, 2048);
+            Random rnd = new(78923);
+            Parallel.For(0, table.Rows, i =>
+            {
+                (long row, long col) = table.GetPosition(i);
+                paddingVal = rnd.Next();
+                table[row, col] = paddingVal;
+            });
+            table.Pretreatment();
+            IEnumerable<int> query = table.Where(cell => cell <= 65535);
+            Console.WriteLine($"query.Length={query.Count()}");
+        }
+
+        [TestMethod()]
+        public void ExistsParallelTest()
+        {
+            //int paddingVal = 0;
+            Table<int> table = new(128, 128);
+            //Random rnd = new(78923);
+            Parallel.For(0, table.Length, i =>
+            {
+                (long row, long col) = table.GetPosition(i);
+                //paddingVal = rnd.Next();
+                table[row, col] = (int)i;
+            });
+            bool isFound = table.Exists(0);
+            Console.WriteLine(isFound);
+        }
+
+        [TestMethod()]
+        public void ToCsvFileTest()
+        {
+            Table<int> table = new(3, 3);
+            Parallel.For(0, table.Length, i =>
+            {
+                (long row, long col) = table.GetPosition(i);
+                table[row, col] = (int)i + 1;
+            });
+            table.ToCsvFile(@"D:\table_to_csv_test.csv");
         }
     }
 }
