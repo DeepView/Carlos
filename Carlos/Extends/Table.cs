@@ -78,6 +78,29 @@ namespace Carlos.Extends
         /// </summary>
         /// <param name="rows">指定的行数。</param>
         /// <param name="cols">指定的列数。</param>
+        /// <param name="data">需要填充的数据。</param>
+        /// <exception cref="ArgumentOutOfRangeException">如果任意一个参数小于0，则将会抛出这个异常。</exception>
+        /// <exception cref="ArgumentException">如果data参数包含的数据超出rows和cols参数允许的范围，则将会抛出这个异常。</exception>
+        public Table(long rows, long cols, T[] data)
+        {
+            if (rows < 0 || cols < 0)
+                throw new ArgumentOutOfRangeException("Size must greater than zero.");
+            else
+            {
+                SetContainerSize(rows, cols);
+                dataContainer = new T[Rows * Cols];
+                if (data.Length > Length)
+                    throw new ArgumentException($"The data length {data.Length} is greater than the table length {Length}.");
+                else
+                    Array.Copy(data, dataContainer, data.Length);
+                InitParallelOptions();
+            }
+        }
+        /// <summary>
+        /// 构造函数，创建一个指定行数和列数的二维表，并在二维表中填充指定的数据。
+        /// </summary>
+        /// <param name="rows">指定的行数。</param>
+        /// <param name="cols">指定的列数。</param>
         /// <param name="paddingValue">需要填充的默认数据，这个数据会被填充到所有的Cell中。</param>
         /// <exception cref="ArgumentOutOfRangeException">如果任意一个参数小于0，则将会抛出这个异常。</exception>
         public Table(long rows, long cols, T paddingValue)

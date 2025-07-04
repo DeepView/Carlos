@@ -1,0 +1,138 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/vcpkg-tool-lessmsi-x64-windows-1.10.0#1-a8322e39-1f2c-4330-b029-8a5826777319",
+  "name": "vcpkg-tool-lessmsi:x64-windows@1.10.0#1 3ac42df5830508419fc1d8e9bdfe2ae4aa703e581aa8280f025e63fb6bbb77dd",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-2025-06-02-145689e84b7637525510e2c9b4ee603fda046b56"
+    ],
+    "created": "2025-06-15T08:51:47Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "DEPENDENCY_MANIFEST_OF",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "vcpkg-tool-lessmsi",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "1.10.0#1",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg@1025fd8509756f76c07068d4088fbe23d67078d8",
+      "homepage": "https://github.com/activescott/lessmsi",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "This is a utility with a graphical user interface and a command line interface that can be used to view and extract the contents of an MSI file.",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "vcpkg-tool-lessmsi:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "3ac42df5830508419fc1d8e9bdfe2ae4aa703e581aa8280f025e63fb6bbb77dd",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-0",
+      "name": "lessmsi-${version}.zip",
+      "packageFileName": "lessmsi-${version}.zip",
+      "downloadLocation": "https://github.com/activescott/lessmsi/releases/download/${version}/lessmsi-${version}.zip",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "91be9363d75e8ca0129304008ddc26fe575cc4fd76d7f43ef0a6ff414855dc1c6e412f4e694b2950026e02cc3d31b18bd8c2e4c03e1ddce01477f3f2d2197479"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./portfile.cmake",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d2d33a4e0da90bc60b280ce9a114e319bb5fc5b3d9709b78ab4cbbf461e0860f"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./vcpkg-port-config.cmake",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "dd4c5f1b279b26c0768c6eedd9327814228fb2d606216de0fa31b3a95381b9c8"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./vcpkg.json",
+      "SPDXID": "SPDXRef-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "58c75e50916e37d01bcd2de04e803465a924985bd1105ec4f363129006ccb96a"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

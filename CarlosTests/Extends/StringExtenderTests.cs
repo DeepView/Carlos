@@ -31,7 +31,7 @@ namespace Carlos.Extends.Tests
         [TestMethod("Convert to ASCII Code Test")]
         public void ToCodeTest()
         {
-            int[] ascii = "12345".ToCode().ToArray();
+            byte[] ascii = "12345".ToCode().ToArray();
             for (int i = 0; i < ascii.Length; i++)
             {
                 Console.WriteLine(ascii[i]);

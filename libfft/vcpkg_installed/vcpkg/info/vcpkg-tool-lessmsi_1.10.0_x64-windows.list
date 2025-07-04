@@ -1,0 +1,7 @@
+x64-windows/
+x64-windows/share/
+x64-windows/share/vcpkg-tool-lessmsi/
+x64-windows/share/vcpkg-tool-lessmsi/copyright
+x64-windows/share/vcpkg-tool-lessmsi/vcpkg-port-config.cmake
+x64-windows/share/vcpkg-tool-lessmsi/vcpkg.spdx.json
+x64-windows/share/vcpkg-tool-lessmsi/vcpkg_abi_info.txt

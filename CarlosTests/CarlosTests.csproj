@@ -35,4 +35,8 @@
     <ProjectReference Include="..\Carlos\Carlos.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Media\GoldenRecord\" />
+  </ItemGroup>
+
 </Project>

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Carlos.Enumerations
+﻿namespace Carlos.Enumerations
 {
     public enum GrayMode : int
     {

@@ -213,13 +213,13 @@ namespace Carlos.Extends
         /// </summary>
         /// <param name="source">需要被转换的字符串。</param>
         /// <returns>该操作将会返回一个泛型列表，这个列表存储的是一系列Int32数据，用于表示一些字节码。</returns>
-        public static List<int> ToCode(this string source)
+        public static List<byte> ToCode(this string source)
         {
             char[] src = source.ToArray();
-            List<int> result = new List<int>();
+            List<byte> result = new List<byte>();
             foreach (char item in src)
             {
-                int sglCode = Convert.ToInt32(item);
+                byte sglCode = Convert.ToByte(item);
                 result.Add(sglCode);
             }
             return result;

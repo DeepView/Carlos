@@ -8,8 +8,8 @@
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2506.50</AssemblyVersion>
-    <FileVersion>1.0.2506.50</FileVersion>
+    <AssemblyVersion>1.0.2507.52</AssemblyVersion>
+    <FileVersion>1.0.2507.52</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C#, VB, F# and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -40,6 +40,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.0" />
     <PackageReference Include="OpenCL.Net" Version="2.2.9" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
