@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
     <Version>$(FileVersion)</Version>
     <Authors>Li Huaxiang</Authors>
     <Copyright>© 2025 $(Authors) and contributors</Copyright>
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2507.52</AssemblyVersion>
-    <FileVersion>1.0.2507.52</FileVersion>
+    <AssemblyVersion>1.0.2508.60</AssemblyVersion>
+    <FileVersion>1.0.2508.60</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C#, VB, F# and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <IncludeSymbols>False</IncludeSymbols>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -42,6 +42,9 @@
     </PackageReference>
     <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.0" />
     <PackageReference Include="OpenCL.Net" Version="2.2.9" />
+    <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>

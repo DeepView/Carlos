@@ -14,6 +14,7 @@ namespace Carlos.Extends
     /// </summary>
     /// <typeparam name="T">需要装填的数据的类型。</typeparam>
     /// <remarks>
+    /// 值得注意的是，当前实例的所有数据都存储在一个一维数组中，因此在访问数据时，行和列的索引并不是从0开始计算，而是从1开始计算。
     /// 如果需要提高数据筛选操作的效率，推荐先对数据集合进行哈希化预处理，该方法声明如下：
     /// <code language="cs">
     /// public void Pretreatment();
@@ -54,6 +55,26 @@ namespace Carlos.Extends
         {
             SetContainerSize(8, 8);
             dataContainer = new T[64];
+            InitParallelOptions();
+        }
+        /// <summary>
+        /// 构造函数，创建一个指定近似大小的二维表。
+        /// </summary>
+        /// <param name="approximateSize">指定的近似大小，但是实例创建成功之后，其实际大小往往大于或者等于这个近似大小。</param>
+        /// <exception cref="ArgumentOutOfRangeException">当参数approximateSize指定的近似大小小于0时，则将会抛出这个异常。</exception>
+        public Table(long approximateSize)
+        {
+            if (approximateSize < 0)
+                throw new ArgumentOutOfRangeException("Size must greater than zero.");
+            else if (approximateSize == 0)
+                SetContainerSize(0, 0);
+            else
+            {
+                long rows = (long)Math.Sqrt(approximateSize) + 1;
+                long cols = rows;
+                SetContainerSize(rows, cols);
+            }
+            dataContainer = new T[Rows * Cols];
             InitParallelOptions();
         }
         /// <summary>
@@ -146,6 +167,16 @@ namespace Carlos.Extends
         /// 获取当前二维表最后一次删除的元素。
         /// </summary>
         public T LastDeletedData { get; private set; }
+        /// <summary>
+        /// 获取或设置指定单元格的内容。
+        /// </summary>
+        /// <param name="index">该单元格所对应的一维索引，这个索引可以根据row和col进行转换。</param>
+        /// <returns>该操作将会返回一个具体的单元格内容，其数据类型取决于在初始化当前实例时，指定的数据类型。</returns>
+        public T this[long index]
+        {
+            get => dataContainer[index];
+            set => dataContainer[index] = value;
+        }
         /// <summary>
         /// 获取或设置指定单元格的内容。
         /// </summary>
