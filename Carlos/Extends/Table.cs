@@ -7,6 +7,7 @@ using Carlos.Environments;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 namespace Carlos.Extends
 {
     /// <summary>
@@ -164,6 +165,10 @@ namespace Carlos.Extends
         /// </summary>
         public long Length => dataContainer.Length;
         /// <summary>
+        /// 获取或设置当前二维表是否允许调整尺寸，默认为true。
+        /// </summary>
+        public bool Resizable { get; set; } = true;
+        /// <summary>
         /// 获取当前二维表最后一次删除的元素。
         /// </summary>
         public T LastDeletedData { get; private set; }
@@ -263,43 +268,108 @@ namespace Carlos.Extends
             }
         }
         /// <summary>
+        /// 获取指定单元格的邻居元素。
+        /// </summary>
+        /// <param name="index">指定单元格所对应的索引。</param>
+        /// <param name="isIncludeDiagonalItems">是否允许获取单元格对角线的邻居元素。</param>
+        /// <returns>该操作将会返回一个Key为(long neighborRow, long neighborCol)元组，Value为T的词典类型，该类型存储了邻居元素的位置信息和邻居元素的值。</returns>
+        /// <exception cref="IndexOutOfRangeException">当索引对应的单元格找不到时，则将会抛出这个异常。</exception>
+        public Dictionary<(long neighborRow, long neighborCol), T> GetNeighbors(long index, bool isIncludeDiagonalItems = true)
+        {
+            if (index > dataContainer.Length - 1 || index < 0)
+                throw new IndexOutOfRangeException("Index out of range.");
+            else
+            {
+                (long row, long col) = GetPosition(index);
+                return GetNeighbors(row, col, isIncludeDiagonalItems);
+            }
+        }
+        /// <summary>
+        /// 获取指定单元格的邻居元素。
+        /// </summary>
+        /// <param name="row">指定单元格的行号。</param>
+        /// <param name="col">所在单元格的列号。</param>
+        /// <param name="isIncludeDiagonalItems">是否允许获取单元格对角线的邻居元素。</param>
+        /// <returns>该操作将会返回一个Key为(long neighborRow, long neighborCol)元组，Value为T的词典类型，该类型存储了邻居元素的位置信息和邻居元素的值。</returns>
+        /// <exception cref="IndexOutOfRangeException">当参数row或者col对应的单元格找不到时，则将会抛出这个异常。</exception>
+        public Dictionary<(long neighborRow, long neighborCol), T> GetNeighbors(long row, long col, bool isIncludeDiagonalItems = true)
+        {
+            var neighbors = new Dictionary<(long neighborRow, long neighborCol), T>();
+            if (row <= 0 || col <= 0 || row > Rows || col > Cols)
+                throw new IndexOutOfRangeException($"The {nameof(row)} or {nameof(col)} out of range.");
+            else
+            {
+                (long n_row, long n_col) location;
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        if (i == 0 && j == 0) continue;
+                        location = (row + i, col + j);
+                        if (location.n_row > 0 && location.n_col > 0 && location.n_row <= Rows && location.n_col <= Cols)
+                        {
+                            long n_index = GetIndex(location.n_row, location.n_col);
+                            neighbors[location] = dataContainer[n_index];
+                        }
+                    }
+                }
+                if (!isIncludeDiagonalItems)
+                {
+                    var keys = neighbors.Keys.ToList();
+                    foreach (var key in keys)
+                    {
+                        if (Math.Abs(key.neighborRow - row) + Math.Abs(key.neighborCol - col) == 2)
+                            neighbors.Remove(key);
+                    }
+                }
+            }
+            return neighbors;
+        }
+        /// <summary>
         /// 在保留数据的前提下，重新设置当前二维表实例的尺寸。
         /// </summary>
         /// <param name="rows">新的总行数。</param>
         /// <param name="cols">新的总列数。</param>
         /// <exception cref="ArgumentException">如果任意一个参数小于0，则将会抛出这个异常。</exception>
         /// <exception cref="InvalidSizeException">当重新设置尺寸之后的单元格总数量超出2147483647时，则将会抛出这个异常。</exception>
+        /// <exception cref="InvalidOperationException">当Resizable属性值为false时，则将会抛出这个异常。</exception>
+        /// <remarks>如果新的尺寸小于当前实例的尺寸，则会丢失部分数据。另外，如果当Resizable属性为false时，是无法修改尺寸的，必须将Resizable属性设置为true才能修改尺寸。</remarks>
         public void Resize(long rows, long cols)
         {
-            if (rows <= 0 || cols <= 0)
-                throw new ArgumentException("Size must greater than zero.");
+            if (!Resizable)
+                throw new InvalidOperationException("The current instance is not allowed to resize.");
             else
             {
-                Func<long, long, bool> overflowDetermine = (long a, long b) =>
-                {
-                    bool isThrowedException = false;
-                    try
-                    {
-                        long multiplication = a * b;
-                    }
-                    catch (OverflowException) { isThrowedException = true; }
-                    return isThrowedException;
-                };
-                if (overflowDetermine.Invoke(rows, cols))
-                {
-                    string exmsg = $"The total number of cells cannot be greater than {long.MaxValue}(System.Int64.MaxValue).";
-                    throw new InvalidSizeException(exmsg);
-                }
+                if (rows <= 0 || cols <= 0)
+                    throw new ArgumentException("Size must greater than zero.");
                 else
                 {
-                    T[] dataCache = dataContainer;
-                    SetContainerSize(rows, cols);
-                    dataContainer = new T[Rows * Cols];
-                    long len = dataCache.Length > Length ? Length : dataCache.Length;
-                    if (Length >= 0x00004000 && processorCount >= minimumProcessorCount)
-                        Parallel.For(0, len, i => dataContainer[i] = dataCache[i]);
+                    Func<long, long, bool> overflowDetermine = (long a, long b) =>
+                    {
+                        bool isThrowedException = false;
+                        try
+                        {
+                            long multiplication = a * b;
+                        }
+                        catch (OverflowException) { isThrowedException = true; }
+                        return isThrowedException;
+                    };
+                    if (overflowDetermine.Invoke(rows, cols))
+                    {
+                        string exmsg = $"The total number of cells cannot be greater than {long.MaxValue}(System.Int64.MaxValue).";
+                        throw new InvalidSizeException(exmsg);
+                    }
                     else
-                        Array.Copy(dataCache, dataContainer, len);
+                    {
+                        T[] dataCache = dataContainer;
+                        SetContainerSize(rows, cols);
+                        dataContainer = new T[Rows * Cols];
+                        long len = dataCache.Length > Length ? Length : dataCache.Length;
+                        if (Length >= 0x00004000 && processorCount >= minimumProcessorCount)
+                            Parallel.For(0, len, i => dataContainer[i] = dataCache[i]);
+                        else
+                            Array.Copy(dataCache, dataContainer, len);
+                    }
                 }
             }
         }

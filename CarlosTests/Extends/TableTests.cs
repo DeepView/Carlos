@@ -174,6 +174,7 @@ namespace Carlos.Extends.Tests
                 (long row, long col) = table.GetPosition(i);
                 table[row, col] = i;
             }
+            //table.Resizable = false;
             Console.WriteLine($"Length={table.Length}");
             Stopwatch stopwatch = Stopwatch.StartNew();
             table.Resize(32768, 32768);
@@ -231,6 +232,22 @@ namespace Carlos.Extends.Tests
                 table[row, col] = (int)i + 1;
             });
             table.ToCsvFile(@"D:\table_to_csv_test.csv");
+        }
+
+        [TestMethod()]
+        public void GetNeighborsTest()
+        {
+            Table<int> table = new(100, 200);
+            Parallel.For(0, table.Length, i =>
+            {
+                (long row, long col) = table.GetPosition(i);
+                table[row, col] = (int)i + 1;
+            });
+            var neighbors = table.GetNeighbors(1, 1,false);
+            foreach (var item in neighbors)
+            {
+                Console.WriteLine(item);
+            }
         }
     }
 }

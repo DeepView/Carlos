@@ -7,6 +7,80 @@ namespace Carlos.Compute
     /// <summary>
     /// 一个基于OpenCL的计算加速器类，用于执行GPU加速的计算任务。
     /// </summary>
+    /// <remarks>
+    /// 以下示例代码展示了如何使用OpenCLAccelerator类进行GPU加速计算：
+    /// <code language="csharp">
+    /// static void Main(string[] args)
+    /// {
+    ///     Console.WriteLine("OpenCL GPU 加速计算测试");
+    ///     try
+    ///     {
+    ///         using (OpenCLAccelerator accelerator = new OpenCLAccelerator())         // 初始化OpenCL加速器
+    ///         {
+    ///             int dataSize = 1024;    // 定义数据大小 
+    ///             string kernelCode = System.IO.File.ReadAllText("VectorAdd.cl");
+    ///             Console.WriteLine("成功读取内核代码，长度: " + kernelCode.Length + " 字符");      // 加载内核代码
+    ///             accelerator.CompileKernel(kernelCode, "VectorAdd");     // 编译内核
+    ///             Console.WriteLine("成功编译内核");
+    ///             float[] inputA = new float[dataSize];
+    ///             float[] inputB = new float[dataSize];
+    ///             for (int i = 0; i &lt; dataSize; i++)
+    ///             {
+    ///                 inputA[i] = i * 1.0f;
+    ///                 inputB[i] = i * 2.0f;
+    ///             }
+    ///             int elementSize = Marshal.SizeOf(typeof(float));
+    ///             int bufferSize = dataSize * elementSize;
+    ///             GCHandle handleA = GCHandle.Alloc(inputA, GCHandleType.Pinned);
+    ///             GCHandle handleB = GCHandle.Alloc(inputB, GCHandleType.Pinned);
+    ///             try
+    ///             {
+    ///                 IntPtr ptrA = handleA.AddrOfPinnedObject();
+    ///                 IntPtr ptrB = handleB.AddrOfPinnedObject();
+    ///                 // 创建缓冲区
+    ///                 accelerator.CreateBuffer("inputA", MemFlags.ReadOnly | MemFlags.CopyHostPtr, (uint)bufferSize, ptrA);
+    ///                 accelerator.CreateBuffer("inputB", MemFlags.ReadOnly | MemFlags.CopyHostPtr, (uint)bufferSize, ptrB);
+    ///                 accelerator.CreateBuffer("output", MemFlags.WriteOnly, (uint)bufferSize);
+    ///             }
+    ///             finally
+    ///             {
+    ///                 // 释放句柄
+    ///                 handleA.Free();
+    ///                 handleB.Free();
+    ///             }
+    ///             // 设置内核参数
+    ///             accelerator.SetKernelArgument("inputA", (uint)0);
+    ///             accelerator.SetKernelArgument("inputB", (uint)1);
+    ///             accelerator.SetKernelArgument("output", (uint)2);
+    ///             accelerator.Execute(dataSize);
+    ///             float[] output = accelerator.ReadBuffer&lt;float&gt;("output", dataSize);             // 读取结果
+    ///             Console.WriteLine("GPU计算完成，验证结果:");
+    ///             bool allCorrect = true;
+    ///             for (int i = 0; i &lt; Math.Min(10, dataSize); i++)
+    ///             {
+    ///                 float expected = inputA[i] + inputB[i];
+    ///                 bool correct = Math.Abs(output[i] - expected) &lt; 0.0001f;
+    ///                 Console.WriteLine($"索引 {i}: GPU结果 = {output[i]}, 预期结果 = {expected}, {(correct ? "正确" : "错误")}");
+    ///                 if (!correct) allCorrect = false;
+    ///             }
+    ///             Console.WriteLine($"验证总结: {(allCorrect ? "全部结果正确" : "存在错误")}");
+    ///         }
+    ///     }
+    ///     catch (Exception ex)
+    ///     {
+    ///         if (ex.InnerException != null) Console.WriteLine($"错误详情: {ex.InnerException.Message}");
+    ///     }
+    /// }
+    /// </code>
+    /// 其中，VectorAdd.cl是一个OpenCL内核文件，内容如下：
+    /// <code language="c">
+    /// __kernel void VectorAdd(__global const float* a, __global const float* b, __global float* c)
+    /// {
+    ///     int i = get_global_id(0);
+    ///     c[i] = a[i] + b[i];
+    /// }
+    /// </code>
+    /// </remarks>
     public class OpenCLAccelerator : IDisposable
     {
         private Context _context;
@@ -51,7 +125,6 @@ namespace Carlos.Compute
                 _platform = platforms[0];
                 InfoBuffer platformNameBuffer = Cl.GetPlatformInfo(_platform, PlatformInfo.Name, out errorCode);
                 string platformName = platformNameBuffer.ToString();
-                Console.WriteLine("使用OpenCL平台: " + platformName);
                 CheckError(errorCode);
                 // 获取设备
                 Device[] devices = Cl.GetDeviceIDs(_platform, DeviceType.Gpu, out errorCode);
@@ -70,7 +143,6 @@ namespace Carlos.Compute
                 _device = devices[0];
                 InfoBuffer deviceNameBuffer = Cl.GetDeviceInfo(_device, DeviceInfo.Name, out errorCode);
                 string deviceName = deviceNameBuffer.ToString();
-                Console.WriteLine("使用OpenCL设备: " + deviceName);
                 CheckError(errorCode);
                 // 创建上下文
                 _context = Cl.CreateContext(null, 1, new[] { _device }, null, IntPtr.Zero, out errorCode);
@@ -255,8 +327,8 @@ namespace Carlos.Compute
                 {
                     throw new Exception($"找不到缓冲区 '{{bufferName}}'");
                 }
-                int elementSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
-                System.Runtime.InteropServices.GCHandle dataHandle = System.Runtime.InteropServices.GCHandle.Alloc(data, System.Runtime.InteropServices.GCHandleType.Pinned);
+                int elementSize = Marshal.SizeOf(typeof(T));
+                GCHandle dataHandle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 IntPtr dataPtr = dataHandle.AddrOfPinnedObject();
                 ErrorCode errorCode = Cl.EnqueueWriteBuffer(
                     _commandQueue, 
@@ -280,7 +352,7 @@ namespace Carlos.Compute
         /// 检查OpenCL错误。
         /// </summary>
         /// <param name="errorCode">错误码。</param>
-        private void CheckError(ErrorCode errorCode)
+        public void CheckError(ErrorCode errorCode)
         {
             if (errorCode != ErrorCode.Success)
             {

@@ -7,8 +7,8 @@
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2508.60</AssemblyVersion>
-    <FileVersion>1.0.2508.60</FileVersion>
+    <AssemblyVersion>1.0.2509.62</AssemblyVersion>
+    <FileVersion>1.0.2509.62</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C#, VB, F# and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
