@@ -243,11 +243,23 @@ namespace Carlos.Extends.Tests
                 (long row, long col) = table.GetPosition(i);
                 table[row, col] = (int)i + 1;
             });
-            var neighbors = table.GetNeighbors(1, 1,false);
+            var neighbors = table.GetNeighbors(1, 1, false);
             foreach (var item in neighbors)
             {
                 Console.WriteLine(item);
             }
+        }
+
+        [TestMethod()]
+        public void ToStringTest()
+        {
+            Table<int> table = new(1000, 1000);
+            Parallel.For(0, table.Length, i =>
+            {
+                (long row, long col) = table.GetPosition(i);
+                table[row, col] = (int)i + 1;
+            });
+            Console.WriteLine(table.ToString());
         }
     }
 }

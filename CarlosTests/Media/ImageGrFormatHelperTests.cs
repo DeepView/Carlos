@@ -1,15 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Carlos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
+﻿using Carlos;
 using Carlos.Enumerations;
 using Carlos.Extends;
-using System.IO;
 using Carlos.Media;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.Versioning;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CarlosTests.Media
 {
@@ -17,6 +18,7 @@ namespace CarlosTests.Media
     public class ImageGrFormatHelperTests
     {
         [TestMethod()]
+        [SupportedOSPlatform("windows6.1")]
         public void GetImageGrayDataTest()
         {
             GrayMode grayMode = GrayMode.WAvgEyes;

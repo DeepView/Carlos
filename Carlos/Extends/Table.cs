@@ -1,13 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using Carlos.Environments;
 using Carlos.Exceptions;
+using System;
+using System.Buffers;
 using System.Collections;
-using Carlos.Environments;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 namespace Carlos.Extends
 {
     /// <summary>
@@ -344,7 +346,7 @@ namespace Carlos.Extends
                     throw new ArgumentException("Size must greater than zero.");
                 else
                 {
-                    Func<long, long, bool> overflowDetermine = (long a, long b) =>
+                    Func<long, long, bool> overflowDetermine = (a, b) =>
                     {
                         bool isThrowedException = false;
                         try
@@ -601,20 +603,20 @@ namespace Carlos.Extends
         /// <remarks>值得注意的是，若当前实例包含的元素数量过多，可能会导致这个方法运行时间延长，因为该方法会将所有的元素进行字符串化，然后进行文本格式化。在这种情形下，该操作会消耗一定的时间开销。</remarks>
         public override string ToString()
         {
-            string itstr = GetInsideType().FullName;
-            string prlong = $"Table<{itstr}>:\n\tRows={Rows}, Cols={Cols}, Length={Length}\n\tElements=\n";
+            var itstr = GetInsideType().FullName;
+            var stringBuilder = new StringBuilder($"Table<{itstr}>:\n\tRows={Rows}, Cols={Cols}, Length={Length}\n\tElements=\n");
             if (Length > 0)
             {
                 for (long i = 1; i <= Rows; i++)
                 {
-                    prlong += "\t\t{";
+                    stringBuilder.Append("\t\t{");
                     for (long j = 1; j <= Cols; j++)
-                        prlong += $"Data {GetIndex(i, j) + 1}: {this[i, j]}; ";
-                    prlong += "}\n";
+                        stringBuilder.Append($"Data {GetIndex(i, j) + 1}: {this[i, j]}; ");
+                    stringBuilder.Append("}\n");
                 }
             }
-            else prlong += $"\t**** Zero Size Table ****";
-            return prlong;
+            else stringBuilder.Append($"\t**** Zero Size Table ****");
+            return stringBuilder.ToString();
         }
         /// <summary>
         /// 赋予Rows和Cols属性新的值。
@@ -650,6 +652,7 @@ namespace Carlos.Extends
                 {
                     Clear();
                     dataContainer = null;
+                    LastDeletedData = default;
                 }
                 disposedValue = true;
             }
