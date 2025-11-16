@@ -165,7 +165,7 @@ namespace Carlos.Data
                 foreach (SQLiteParameter parameter in parameters)
                     Command.Parameters.Add(parameter);
             }
-            SQLiteDataAdapter adapter = new SQLiteDataAdapter(Command);
+            SQLiteDataAdapter adapter = new(Command);
             DataTable data = new DataTable();
             adapter?.Fill(data);
             return data;

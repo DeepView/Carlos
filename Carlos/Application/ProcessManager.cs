@@ -10,6 +10,7 @@ using System.Collections;
 using Carlos.Enumerations;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Runtime.InteropServices;
 using Carlos.Application.Win32Privilege;
 namespace Carlos.Application
@@ -19,7 +20,7 @@ namespace Carlos.Application
     /// </summary>
     public class ProcessManager
     {
-        private static Hashtable mProcessHandleHashTable = new Hashtable();//进程句柄哈希表。
+        private static Hashtable mProcessHandleHashTable = [];//进程句柄哈希表。
         private const int ERROR_SUCCESS = 0;//当成功时需要返回的错误码。
         /// <summary>
         /// 窗口枚举委托。
@@ -148,6 +149,7 @@ namespace Carlos.Application
         /// <param name="domian">启动进程时要使用的域。</param>
         /// <returns>该方法会返回这个进程的System.Diagnostics.Process实例。</returns>
         /// <exception cref="FileNotFoundException">当指定的Windows可执行文件找不到时，则会抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static Process CreateProcess(string executeFileUrl, string userName, SecureString password, string domian)
         {
             if (File.Exists(executeFileUrl)) throw new FileNotFoundException("This excuted file is not found.");
@@ -162,6 +164,7 @@ namespace Carlos.Application
         /// <param name="password">一个SecureString实例，它包含启动进程时要使用的密码。</param>
         /// <param name="domian">启动进程时要使用的域。</param>
         /// <returns>该方法会返回这个进程的System.Diagnostics.Process实例。</returns>
+        [SupportedOSPlatform("windows")]
         public static Process CreateProcess(
             string executeFileUrl,
             string arguments,
@@ -188,6 +191,7 @@ namespace Carlos.Application
         /// <param name="priority">需要被创建的进程的优先级。</param>
         /// <returns>该方法会返回这个进程的System.Diagnostics.Process实例。</returns>
         /// <exception cref="FileNotFoundException">当指定的Windows可执行文件找不到时，则会抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static Process CreateProcess(string executeFileUrl, string arguments, string userName, SecureString password, string domian, ProcessPriority priority)
         {
             Process retval;
@@ -340,7 +344,7 @@ namespace Carlos.Application
         {
             IntPtr hwnd_t = IntPtr.Zero;
             PrivilegeGetter.LookupPrivilegeValue(systemName, processName, ref privileges.Privileges.ParticularLuid);
-            PrivilegeGetter.OpenProcessToken(PrivilegeGetter.GetCurrentProcess(), operationType, hwnd_t);
+            PrivilegeGetter.OpenProcessToken(PrivilegeGetter.GetCurrentProcess(), operationType, out hwnd_t);
             PrivilegeGetter.AdjustTokenPrivileges(hwnd_t, false, ref privileges, 100000, new TokenPrivileges(), 0);
             bool isSuccessful = Win32ApiHelper.GetLastWin32ApiError() == ERROR_SUCCESS;
             PrivilegeGetter.CloseHandle(hwnd_t);
@@ -413,7 +417,7 @@ namespace Carlos.Application
                     {
                         processHandle = procs[i].Handle;
                     }
-                    catch (Exception throwedException) { if (throwedException != null) throw throwedException; }
+                    catch (Exception throwedException) { if (throwedException != null) throw; }
                     break;
                 }
             }

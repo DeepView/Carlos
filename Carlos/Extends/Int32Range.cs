@@ -4,58 +4,51 @@ namespace Carlos.Extends
     /// <summary>
     /// 表示一个32位整数的范围结构。
     /// </summary>
-    public struct Int32Range : IEquatable<Int32Range>
+    /// <remarks>
+    /// 构造函数，根据下限值、上限值、最低下限值是否存在于数学包含和最高上限是否存在于数学包含这四个参数创建一个32位整数的范围结构。
+    /// </remarks>
+    /// <param name="lower">指定的下限值。</param>
+    /// <param name="upper">指定的上限值。</param>
+    /// <param name="isIncludeLower">在数学意义上，是否包含这个下限值，作为可选参数，其默认值为true。</param>
+    /// <param name="isIncludeUpper">在数学意义上，是否包含这个上限值，作为可选参数，其默认值为true。</param>
+    public struct Int32Range(int lower, int upper, bool isIncludeLower = true, bool isIncludeUpper = true) : IEquatable<Int32Range>
     {
-        /// <summary>
-        /// 构造函数，根据下限值、上限值、最低下限值是否存在于数学包含和最高上限是否存在于数学包含这四个参数创建一个32位整数的范围结构。
-        /// </summary>
-        /// <param name="lower">指定的下限值。</param>
-        /// <param name="upper">指定的上限值。</param>
-        /// <param name="isIncludeLower">在数学意义上，是否包含这个下限值，作为可选参数，其默认值为true。</param>
-        /// <param name="isIncludeUpper">在数学意义上，是否包含这个上限值，作为可选参数，其默认值为true。</param>
-        public Int32Range(int lower, int upper, bool isIncludeLower = true, bool isIncludeUpper = true)
-        {
-            Lower = lower;
-            Upper = upper;
-            IsIncludeLower = isIncludeLower;
-            IsIncludeUpper = isIncludeUpper;
-        }
         /// <summary>
         /// 获取或设置当前结构的下限值。
         /// </summary>
-        public int Lower { get; set; }
+        public int Lower { get; set; } = lower;
         /// <summary>
         /// 获取或设置当前结构的上限值。
         /// </summary>
-        public int Upper { get; set; }
+        public int Upper { get; set; } = upper;
         /// <summary>
         /// 获取或设置该范围在数学意义上是否包含了下限值。
         /// </summary>
-        public bool IsIncludeLower { get; set; }
+        public bool IsIncludeLower { get; set; } = isIncludeLower;
         /// <summary>
         /// 获取或设置该范围在数学意义上是否包含了上限值。
         /// </summary>
-        public bool IsIncludeUpper { get; set; }
+        public bool IsIncludeUpper { get; set; } = isIncludeUpper;
         /// <summary>
         /// 获取一个包含无符号字节数据类型的Int32Range实例。
         /// </summary>
-        public static Int32Range RangeOfByte => new Int32Range(byte.MinValue, byte.MaxValue);
+        public static Int32Range RangeOfByte => new(byte.MinValue, byte.MaxValue);
         /// <summary>
         /// 获取一个包含字节数据类型的Int32Range实例。
         /// </summary>
-        public static Int32Range RangeOfSByte => new Int32Range(sbyte.MinValue, sbyte.MaxValue);
+        public static Int32Range RangeOfSByte => new(sbyte.MinValue, sbyte.MaxValue);
         /// <summary>
         /// 获取一个包含无符号16位整形数据类型的Int32Range实例。
         /// </summary>
-        public static Int32Range RangeOfUInt16 => new Int32Range(ushort.MinValue, ushort.MaxValue);
+        public static Int32Range RangeOfUInt16 => new(ushort.MinValue, ushort.MaxValue);
         /// <summary>
         /// 获取一个包含16位整形数据类型的Int32Range实例。
         /// </summary>
-        public static Int32Range RangeOfInt16 => new Int32Range(short.MinValue, short.MaxValue);
+        public static Int32Range RangeOfInt16 => new(short.MinValue, short.MaxValue);
         /// <summary>
         /// 获取一个包含32位整形数据类型的Int32Range实例。
         /// </summary>
-        public static Int32Range RangeOfInt32 => new Int32Range(int.MinValue, int.MaxValue);
+        public static Int32Range RangeOfInt32 => new(int.MinValue, int.MaxValue);
         /// <summary>
         /// 判断参数x是否在当前结构所表示的范围内。
         /// </summary>
@@ -110,6 +103,12 @@ namespace Carlos.Extends
             return lowerEqual && upperEqual && lowerIncEqual && upperIncEqual;
         }
         /// <summary>
+        /// 判断当前结构与另一个object是否相同
+        /// </summary>
+        /// <param name="obj">另一个object。</param>
+        /// <returns>如果当前Int32Range结构与这个object相同，则返回true，否则返回false。</returns>
+        public override bool Equals(object obj) => obj is Int32Range range && Equals(range);
+        /// <summary>
         /// 获取一个该实例的字符串表达形式。
         /// </summary>
         /// <returns>该操作将会返回一个在数学表达意义上的范围。</returns>
@@ -119,5 +118,24 @@ namespace Carlos.Extends
             string rightSymbol = IsIncludeUpper ? "]" : ")";
             return $"x ∈ {leftSymbol} {Lower} , {Upper} {rightSymbol} , x ∈ N";
         }
+        /// <summary>
+        /// 获取当前结构的哈希代码。
+        /// </summary>
+        /// <returns>该操作将会返回当前结构的哈希代码。</returns>
+        public override int GetHashCode() => HashCode.Combine(Lower, Upper, IsIncludeLower, IsIncludeUpper);
+        /// <summary>
+        /// 运算符重载，判断两个Int32Range结构是否相等。
+        /// </summary>
+        /// <param name="left">左值。</param>
+        /// <param name="right">右值。</param>
+        /// <returns>如果两者相等则返回true，否则返回false。</returns>
+        public static bool operator ==(Int32Range left, Int32Range right) => left.Equals(right);
+        /// <summary>
+        /// 运算符重载，判断两个Int32Range结构是否不相等。
+        /// </summary>
+        /// <param name="left">左值。</param>
+        /// <param name="right">右值。</param>
+        /// <returns>如果两者不相等则返回true，否则返回false。</returns>
+        public static bool operator !=(Int32Range left, Int32Range right) => !(left == right);
     }
 }

@@ -7,13 +7,13 @@
     <PackageId>Carlos Saber</PackageId>
     <Product>Carlos Saber</Product>
     <AssemblyName>CarlosSaber</AssemblyName>
-    <AssemblyVersion>1.0.2509.64</AssemblyVersion>
-    <FileVersion>1.0.2509.64</FileVersion>
+    <AssemblyVersion>1.1.2511.0</AssemblyVersion>
+    <FileVersion>1.1.2511.0</FileVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Description>Carlos Saber is a tool extension library for .NET, applicable to C#, VB, F# and C++/CLI.</Description>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <IncludeSymbols>False</IncludeSymbols>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -37,17 +37,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\SQLServerHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.0.0" />
+    <PackageReference Include="OllamaSharp" Version="5.4.11" />
     <PackageReference Include="OpenCL.Net" Version="2.2.9" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.D3DCompiler" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
+    <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="System.Security.Permissions" Version="10.0.0" />
   </ItemGroup>
 
 </Project>

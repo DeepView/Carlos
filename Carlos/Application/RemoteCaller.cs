@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -190,11 +190,11 @@ namespace Carlos.Application
                 {
                     if (mRouter == null)
                     {
-                        using CodeExecutedTimespanResult result = new CodeExecutedTimespanResult("Debug");
+                        using CodeExecutedTimespanResult result = new("Debug");
                         mRouter = new RemoteCaller
                         {
                             AppSchemeName = appSchemeName,
-                            Schemes = new Dictionary<string, string>(),
+                            Schemes = [],
                             Assembly = assembly,
                             IsMustProtocol = true
                         };
@@ -218,10 +218,10 @@ namespace Carlos.Application
             string methodName = nativeUrl.LocalPath[1..];
             string parametersString = nativeUrl.Query[1..];
             string[] psArray = parametersString.Split('&');
-            Dictionary<string, object> paramList = new Dictionary<string, object>();
+            Dictionary<string, object> paramList = [];
             for (int i = 0; i < psArray.Length; i++)
             {
-                string[] kvArray = psArray[i].Split(new char[] { '=' });
+                string[] kvArray = psArray[i].Split(['=']);
                 paramList.Add(kvArray.First(), kvArray.Last());
             }
             string completeMethodString = className + "." + methodName;
@@ -236,7 +236,7 @@ namespace Carlos.Application
             }
             BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
             MethodInfo mi = type.GetMethod(methodName, flags);
-            object invokeResult = mi.Invoke(null, new object[] { paramList });
+            object invokeResult = mi.Invoke(null, [paramList]);
             return invokeResult;
         }
         /// <summary>
@@ -265,9 +265,11 @@ namespace Carlos.Application
         protected virtual string OpenWeb(Uri webUrl)
         {
             string htmlContext = string.Empty;
-            using (StreamReader reader = new StreamReader(WebRequest.Create(webUrl).GetResponse().GetResponseStream()))
+            using (var client = new HttpClient())
             {
-                htmlContext = reader.ReadToEnd();
+                var task = client.GetStringAsync(webUrl);
+                task.Wait();
+                htmlContext = task.Result;
             }
             return htmlContext;
         }

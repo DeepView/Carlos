@@ -12,7 +12,7 @@ namespace Carlos.Extends
     {
         private readonly T _value;
         private int _refCount;
-        private static readonly Dictionary<T, RefCountedQuerier<T>> _objectCache = new Dictionary<T, RefCountedQuerier<T>>();
+        private static readonly Dictionary<T, RefCountedQuerier<T>> _objectCache = [];
         /// <summary>
         /// 创建一个新的引用计数查询器实例。
         /// </summary>

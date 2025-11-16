@@ -5,24 +5,28 @@ namespace Carlos.Extends
     /// <summary>
     /// 一个倒计时类，计时精度为毫秒（millisecond）。
     /// </summary>
-    public class Countdown
+    /// <remarks>
+    /// 构造函数，初始化倒计时的起始时间。
+    /// </remarks>
+    /// <param name="startMilliseconds">指定的起始时间，单位为毫秒（millisecond）。</param>
+    public class Countdown(int startMilliseconds)
     {
         /// <summary>
         /// 获取或设置倒计时的起始时间，单位为毫秒（millisecond）。
         /// </summary>
-        public int StartMilliseconds { get; set; }
+        public int StartMilliseconds { get; set; } = startMilliseconds;
         /// <summary>
         /// 获取或设置倒计时剩余的时间，单位为毫秒（millisecond）。
         /// </summary>
-        public int RemainingMilliseconds { get; set; }
+        public int RemainingMilliseconds { get; set; } = startMilliseconds;
         /// <summary>
         /// 获取或设置倒计时是否正在运行。
         /// </summary>
-        public bool IsRunning { get; set; }
+        public bool IsRunning { get; set; } = false;
         /// <summary>
         /// 获取或设置倒计时是否已暂停。
         /// </summary>
-        public bool IsPaused { get; set; }
+        public bool IsPaused { get; set; } = false;
         /// <summary>
         /// 当倒计时结束时触发的事件。
         /// </summary>
@@ -43,17 +47,6 @@ namespace Carlos.Extends
         /// 当倒计时停止时触发的事件。
         /// </summary>
         public event EventHandler<EventArgs> OnCountdownStopped;
-        /// <summary>
-        /// 构造函数，初始化倒计时的起始时间。
-        /// </summary>
-        /// <param name="startMilliseconds">指定的起始时间，单位为毫秒（millisecond）。</param>
-        public Countdown(int startMilliseconds)
-        {
-            StartMilliseconds = startMilliseconds;
-            RemainingMilliseconds = startMilliseconds;
-            IsRunning = false;
-            IsPaused = false;
-        }
         /// <summary>
         /// 开始倒计时。
         /// </summary>

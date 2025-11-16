@@ -4,6 +4,7 @@ using System.Drawing;
 using Carlos.Enumerations;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using System.Collections.Generic;
 namespace Carlos.Media
 {
@@ -26,10 +27,10 @@ namespace Carlos.Media
         /// <exception cref="ArgumentNullException">当图像数据为空时，则将会抛出这个异常。</exception>
         /// <exception cref="ArgumentOutOfRangeException">当灰度模式参数无效时，则将会抛出这个异常。</exception>
         /// <exception cref="NotSupportedException">当灰度模式参数不受支持时，则将会抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static Table<byte> GetImageGrayData(Bitmap bitmap, GrayMode grayMode, (double weightRed, double weightGreen, double weightBlue)? weight = null)
         {
-            if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap));
+            ArgumentNullException.ThrowIfNull(bitmap);
             if (!Enum.IsDefined(typeof(GrayMode), grayMode))
                 throw new ArgumentOutOfRangeException(nameof(grayMode));
             var (weightRed, weightGreen, weightBlue) = weight ?? DEF_GW;
@@ -66,10 +67,10 @@ namespace Carlos.Media
         /// <exception cref="ArgumentNullException">当图像数据为空时，则将会抛出这个异常。</exception>
         /// <exception cref="ArgumentOutOfRangeException">当灰度模式参数无效时，则将会抛出这个异常。</exception>
         /// <exception cref="NotSupportedException">当灰度模式参数不受支持时，则将会抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static async Task<Table<byte>> GetImageGrayDataAsync(Bitmap bitmap, GrayMode grayMode, (double weightRed, double weightGreen, double weightBlue)? weight = null)
         {
-            if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap));
+            ArgumentNullException.ThrowIfNull(bitmap);
             if (!Enum.IsDefined(typeof(GrayMode), grayMode))
                 throw new ArgumentOutOfRangeException(nameof(grayMode));
             var (weightRed, weightGreen, weightBlue) = weight ?? DEF_GW;
@@ -105,13 +106,13 @@ namespace Carlos.Media
         /// <param name="grayData">指定的灰度数据集。</param>
         /// <returns>该操作将会返回一个Bitmap对象，用于存放创建好的灰度图像。</returns>
         /// <exception cref="ArgumentNullException">如果灰度数据为NULL时，则将抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static Bitmap CreateGrayImage(Table<byte> grayData)
         {
-            if (grayData == null)
-                throw new ArgumentNullException(nameof(grayData));
+            ArgumentNullException.ThrowIfNull(grayData);
             int height = (int)grayData.Rows;
             int width = (int)grayData.Cols;
-            Bitmap bitmap = new Bitmap(width, height);
+            Bitmap bitmap = new(width, height);
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -128,13 +129,13 @@ namespace Carlos.Media
         /// <param name="grayData">指定的灰度数据集。</param>
         /// <returns>该操作将会返回一个Bitmap对象，用于存放创建好的灰度图像。</returns>
         /// <exception cref="ArgumentNullException">如果灰度数据为NULL时，则将抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static async Task<Bitmap> CreateGrayImageAsync(Table<byte> grayData)
         {
-            if (grayData == null)
-                throw new ArgumentNullException(nameof(grayData));
+            ArgumentNullException.ThrowIfNull(grayData);
             int height = (int)grayData.Rows;
             int width = (int)grayData.Cols;
-            Bitmap bitmap = new Bitmap(width, height);
+            Bitmap bitmap = new (width, height);
             await Task.Run(() =>
             {
                 for (int y = 0; y < height; y++)
@@ -154,10 +155,10 @@ namespace Carlos.Media
         /// <param name="image">指定的Bitmap对象。</param>
         /// <returns>如果指定的Bitmap对象拥有Alpha通道，则会返回true，否则返回false。</returns>
         /// <exception cref="ArgumentNullException">如果参数bitmap为NULL，则将抛出这个异常。</exception>
+        [SupportedOSPlatform("windows")]
         public static bool HasAlphaChannel(Image image)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image)); 
+            ArgumentNullException.ThrowIfNull(image);
             PixelFormat format = image.PixelFormat;
             return format == PixelFormat.Format32bppArgb || format == PixelFormat.Format64bppPArgb;
         }

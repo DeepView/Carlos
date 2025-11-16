@@ -14,8 +14,8 @@ namespace Carlos.Network.SocketOperation
     public class Server : SocketObject
     {
         private bool isStop = false;
-        private object obj = new object();
-        private Semaphore semap = new Semaphore(5, 5000);
+        private object obj = new();
+        private Semaphore semap = new(5, 5000);
         private TcpListener listener;
         private IPAddress ipAddress;
         private int Port;
@@ -41,7 +41,7 @@ namespace Carlos.Network.SocketOperation
             ipAddress = ipAddr;
             Port = port;
             listener = new TcpListener(ipAddress, Port);
-            ClientList = new List<Sockets>();
+            ClientList = [];
         }
         /// <summary>
         /// 初始化服务端对象。
@@ -53,7 +53,7 @@ namespace Carlos.Network.SocketOperation
             ipAddress = IPAddress.Parse(ipAddr);
             Port = port;
             listener = new TcpListener(ipAddress, Port);
-            ClientList = new List<Sockets>();
+            ClientList = [];
         }
         /// <summary>
         /// 启动监听，并处理连接。
@@ -63,7 +63,7 @@ namespace Carlos.Network.SocketOperation
             try
             {
                 listener.Start();
-                Thread accTh = new Thread(new ThreadStart(delegate
+                Thread accTh = new(new ThreadStart(delegate
                 {
                     while (true)
                     {
@@ -76,7 +76,7 @@ namespace Carlos.Network.SocketOperation
             }
             catch (SocketException throwedSocketException)
             {
-                Sockets sks = new Sockets
+                Sockets sks = new()
                 {
                     ThrowedException = throwedSocketException
                 };
@@ -108,8 +108,8 @@ namespace Carlos.Network.SocketOperation
                     semap.WaitOne();
                     TcpClient tclient = listener.AcceptTcpClient();
                     Socket socket = tclient.Client;
-                    NetworkStream stream = new NetworkStream(socket, true);
-                    Sockets sks = new Sockets(tclient.Client.RemoteEndPoint as IPEndPoint, tclient, stream)
+                    NetworkStream stream = new(socket, true);
+                    Sockets sks = new(tclient.Client.RemoteEndPoint as IPEndPoint, tclient, stream)
                     {
                         NewClientFlag = true
                     };
@@ -186,7 +186,7 @@ namespace Carlos.Network.SocketOperation
                     if (item != null) SendTo(item.Ip, data);
                 });
             }
-            catch (Exception throwedException) { if (throwedException != null) throw throwedException; }
+            catch (Exception throwedException) { if (throwedException != null) throw; }
         }
         /// <summary>
         /// 向指定的客户端发送信息。
@@ -200,7 +200,7 @@ namespace Carlos.Network.SocketOperation
                 Sockets sks = ClientList.Find(o => { return o.Ip == ip; });
                 if (sks == null || !sks.Client.Connected || sks.ClientDispose)
                 {
-                    Sockets ks = new Sockets();
+                    Sockets ks = new();
                     sks.ClientDispose = true;
                     sks.ThrowedException = new Exception("客户端无连接");
                     PushSockets?.Invoke(sks);
@@ -236,7 +236,7 @@ namespace Carlos.Network.SocketOperation
             }
             catch (Exception throwedSocketException)
             {
-                Sockets sks = new Sockets
+                Sockets sks = new()
                 {
                     ClientDispose = true,
                     ThrowedException = throwedSocketException

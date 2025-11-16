@@ -1,15 +1,14 @@
-﻿using Carlos.Environments;
-using Carlos.Exceptions;
-using System;
-using System.Buffers;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Carlos.Exceptions;
+using System.Collections;
+using Carlos.Environments;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+//using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 namespace Carlos.Extends
 {
     /// <summary>
@@ -358,8 +357,8 @@ namespace Carlos.Extends
                     };
                     if (overflowDetermine.Invoke(rows, cols))
                     {
-                        string exmsg = $"The total number of cells cannot be greater than {long.MaxValue}(System.Int64.MaxValue).";
-                        throw new InvalidSizeException(exmsg);
+                        string exMsg = $"The total number of cells cannot be greater than {long.MaxValue}(System.Int64.MaxValue).";
+                        throw new InvalidSizeException(exMsg);
                     }
                     else
                     {
@@ -422,7 +421,7 @@ namespace Carlos.Extends
         /// <remarks>该方法之所以将可见性设置为public，是为了让用户自行决定合适对数据进行预处理。不过在此建议，当该实例容纳的数据发生变更之后，执行诸如数据查找等方法之前，执行一次这个方法。</remarks>
         public void Pretreatment()
         {
-            elementToIndexMap = new Dictionary<T, long>();
+            elementToIndexMap = [];
             for (long i = 0; i < Length; i++)
                 elementToIndexMap[dataContainer[i]] = i;
         }

@@ -9,7 +9,7 @@ namespace Carlos.Application.Win32Privilege
     /// Windows操作系统权限获取类。
     /// </summary>
     [Serializable]
-    public sealed class PrivilegeGetter
+    public sealed partial class PrivilegeGetter
     {
         private const int ERROR_NOT_ALL_ASSIGNED = 1300;//如果进程的访问令牌中没有关联某权限，则AdjustTokenPrivileges函数调用将会返回错误码ERROR_NOT_ALL_ASSIGNED（值为1300）。
         private const string SECURITY_GROUP_ADMINISTRATORS = @"Administrators";//计算机管理员用户组名称。
@@ -17,17 +17,17 @@ namespace Carlos.Application.Win32Privilege
         /// 获取当前进程的一个伪句柄。
         /// </summary>
         /// <returns>获取当前进程的一个伪句柄，只要当前进程需要一个进程句柄，就可以使用这个伪句柄。该句柄可以复制，但不可继承。</returns>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr GetCurrentProcess();
+        [LibraryImport("kernel32.dll")]
+        public static partial IntPtr GetCurrentProcess();
         /// <summary>
         /// 关闭一个内核对象。
         /// </summary>
         /// <param name="handle">需要被关闭的对象。</param>
         /// <returns>如果执行成功，返回true，如果执行失败，返回false，如果要获取更多的错误信息，请调用Marshal.GetLastWin32Error。</returns>
         /// <remarks>关闭一个内核对象。其中包括文件、文件映射、进程、线程、安全和同步对象等。在CreateThread成功之后会返回一个hThread的handle，且内核对象的计数加1，CloseHandle之后，引用计数减1，当变为0时，系统删除内核对象。若在线程执行完之后，没有调用CloseHandle，在进程执行期间，将会造成内核对象的泄露，相当于句柄泄露，但不同于内存泄露，这势必会对系统的效率带来一定程度上的负面影响。但当进程结束退出后，系统会自动清理这些资源。</remarks>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        public static extern bool CloseHandle(IntPtr handle);
+        [LibraryImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static partial bool CloseHandle(IntPtr handle);
         /// <summary>
         /// 查看系统权限的特权值。
         /// </summary>
@@ -36,9 +36,13 @@ namespace Carlos.Application.Win32Privilege
         /// <param name="luidPointer">接收所返回的制定特权名称的信息。</param>
         /// <returns>如果执行成功，返回true，如果执行失败，返回false，如果要获取更多的错误信息，请调用Marshal.GetLastWin32Error。</returns>
         /// <remarks>查看指定系统权限的特权值，如果操作成功则返回true，否则返回false，与此同时，还会将接收的信息反馈到LocallyUniqueIdentifier结构类里面。</remarks>
-        [DllImport("advapi32.dll", CharSet = CharSet.Auto)]
+        [LibraryImport("advapi32.dll", StringMarshalling = StringMarshalling.Utf8)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool LookupPrivilegeValue(string systemName, string jurisdictionName, ref Luid luidPointer);
+        public static partial bool LookupPrivilegeValue(
+            [MarshalAs(UnmanagedType.LPWStr)] string systemName,
+            [MarshalAs(UnmanagedType.LPWStr)] string jurisdictionName,
+            ref Luid luidPointer
+        );
         /// <summary>
         /// 打开与进程相关联的访问令牌。
         /// </summary>
@@ -47,8 +51,9 @@ namespace Carlos.Application.Win32Privilege
         /// <param name="tokenPointer">返回的访问令牌指针。</param>
         /// <returns>如果执行成功，返回true，如果执行失败，返回false，如果要获取更多的错误信息，请调用Marshal.GetLastWin32Error。</returns>
         /// <remarks>打开与进程相关联的访问令牌，当修改权限的时候需要用到这个句柄，操作成功返回true，否则返回false。</remarks>
-        [DllImport("advapi32.dll", CharSet = CharSet.Auto)]
-        public static extern bool OpenProcessToken([In()] IntPtr handle, [In()] int operationType, [Out()] IntPtr tokenPointer);
+        [LibraryImport("advapi32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static partial bool OpenProcessToken(IntPtr handle, int operationType, out IntPtr tokenPointer);
         /// <summary>
         /// 启用或禁止指定访问令牌的特权。
         /// </summary>
@@ -60,8 +65,16 @@ namespace Carlos.Application.Win32Privilege
         /// <param name="retunValueSize">接收PreviousState缓存区要求的大小。</param>
         /// <returns>如果执行成功，返回true，如果执行失败，返回false，如果要获取更多的错误信息，请调用Marshal.GetLastWin32Error。</returns>
         /// <remarks>启用或禁用特权一个有TOKEN_ADJUST_PRIVILEGES访问的访问令牌，成功返回true，否则返回false。</remarks>
-        [DllImport("advapi32.dll", CharSet = CharSet.Auto)]
-        public static extern bool AdjustTokenPrivileges(IntPtr tokenPointer, bool disable, ref TokenPrivileges newStateInfo, Int32 bufferSize, TokenPrivileges privileges, Int32 retunValueSize);
+        [LibraryImport("advapi32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static partial bool AdjustTokenPrivileges(
+            IntPtr tokenPointer, 
+            [MarshalAs(UnmanagedType.Bool)] bool disable, 
+            ref TokenPrivileges newStateInfo, 
+            int bufferSize, 
+            TokenPrivileges privileges, 
+            int retunValueSize
+        );
         /// <summary>
         /// 授予当前进程需要申请的Windows操作系统权限。
         /// </summary>
@@ -71,27 +84,37 @@ namespace Carlos.Application.Win32Privilege
         {
             try
             {
-                Luid locallyUniqueIdentifier = new Luid();
+                Luid locallyUniqueIdentifier = new();
                 if (LookupPrivilegeValue(null, privilegeName, ref locallyUniqueIdentifier))
                 {
-                    LuidAttributes luidAndAtt = new LuidAttributes()
+                    LuidAttributes luidAndAtt = new()
                     {
                         Attributes = (int)PrivilegeAttributes.SE_PRIVILEGE_ENABLED,
                         ParticularLuid = locallyUniqueIdentifier
                     };
-                    TokenPrivileges tokenPrivileges = new TokenPrivileges()
+                    TokenPrivileges tokenPrivileges = new()
                     {
                         PrivilegeCount = 1,
                         Privileges = luidAndAtt
                     };
-                    TokenPrivileges tempTokenPriv = new TokenPrivileges();
+                    TokenPrivileges tempTokenPriv = new();
                     IntPtr tokenHandle = IntPtr.Zero;
                     try
                     {
-                        bool condition = OpenProcessToken(GetCurrentProcess(), (int)TokenAccess.TOKEN_ADJUST_PRIVILEGES | (int)TokenAccess.TOKEN_QUERY, tokenHandle);
+                        bool condition = OpenProcessToken(
+                            GetCurrentProcess(),
+                            (int)TokenAccess.TOKEN_ADJUST_PRIVILEGES | (int)TokenAccess.TOKEN_QUERY,
+                            out tokenHandle
+                        );
                         if (condition)
                         {
-                            if (AdjustTokenPrivileges(tokenHandle, false, ref tokenPrivileges, 1024, tempTokenPriv, 0))
+                            if (AdjustTokenPrivileges(
+                                tokenHandle,
+                                false,
+                                ref tokenPrivileges,
+                                1024,
+                                tempTokenPriv,
+                                0))
                             {
                                 if (Marshal.GetLastWin32Error() != ERROR_NOT_ALL_ASSIGNED) return true;
                             }
@@ -115,26 +138,36 @@ namespace Carlos.Application.Win32Privilege
         {
             try
             {
-                Luid locallyUniqueIdentifier = new Luid();
+                Luid locallyUniqueIdentifier = new();
                 if (LookupPrivilegeValue(null, privilegeName, ref locallyUniqueIdentifier))
                 {
-                    LuidAttributes luidAndAtt = new LuidAttributes()
+                    LuidAttributes luidAndAtt = new()
                     {
                         ParticularLuid = locallyUniqueIdentifier
                     };
-                    TokenPrivileges tokenPrivileges = new TokenPrivileges()
+                    TokenPrivileges tokenPrivileges = new()
                     {
                         PrivilegeCount = 1,
                         Privileges = luidAndAtt
                     };
-                    TokenPrivileges tempTokenPriv = new TokenPrivileges();
+                    TokenPrivileges tempTokenPriv = new();
                     IntPtr tokenHandle = IntPtr.Zero;
                     try
                     {
-                        bool condition = OpenProcessToken(GetCurrentProcess(), (int)TokenAccess.TOKEN_ADJUST_PRIVILEGES | (int)TokenAccess.TOKEN_QUERY, tokenHandle);
+                        bool condition = OpenProcessToken(
+                            GetCurrentProcess(), 
+                            (int)TokenAccess.TOKEN_ADJUST_PRIVILEGES | (int)TokenAccess.TOKEN_QUERY, 
+                            out tokenHandle
+                        );
                         if (condition)
                         {
-                            if (AdjustTokenPrivileges(tokenHandle, false, ref tokenPrivileges, 1024, tempTokenPriv, 0))
+                            if (AdjustTokenPrivileges(
+                                tokenHandle, 
+                                false, 
+                                ref tokenPrivileges, 
+                                1024, 
+                                tempTokenPriv, 
+                                0))
                             {
                                 if (Marshal.GetLastWin32Error() != ERROR_NOT_ALL_ASSIGNED) return true;
                             }

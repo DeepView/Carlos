@@ -6,7 +6,7 @@ namespace Carlos.Extends
     /// <summary>
     /// 傅里叶变换类，提供离散傅里叶变换（DFT）和快速傅里叶变换（FFT）的实现。
     /// </summary>
-    public class Fourier
+    public static class Fourier
     {
         /// <summary>
         /// 计算离散傅里叶变换（DFT）。

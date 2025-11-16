@@ -124,12 +124,11 @@ namespace Carlos.Network
         /// </code>
         /// <para>另外需要补充的是，在.NET Core项目中，一旦修改了manifest文件中的requestedExecutionLevel设置，则不需要访问Carlos.Application.Win32Privileges.PrivilegeGetter.NeedAdministratorsPrivilege()方法。</para>
         /// </remarks>
-        [PrincipalPermission(SecurityAction.Demand, Role = "Administrators", Authenticated = true)]
         public bool UpdateLocalTime(out long win32ErrorCode, out string win32ErrorInformation)
         {
             win32ErrorCode = 0x0000;
             win32ErrorInformation = Win32ApiHelper.FormatErrorCode(0x0000);
-            LocalSystemTime systemTime = new LocalSystemTime()
+            LocalSystemTime systemTime = new()
             {
                 Year = Convert.ToUInt16(Time.Year),
                 Month = Convert.ToUInt16(Time.Month),
